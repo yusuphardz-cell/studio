@@ -17,11 +17,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { calculateStandings, getMatches, getTeams } from '@/lib/data';
+import { calculateStandings, getMatches, getTeams, setMatches } from '@/lib/data';
 import type { Standing } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { RefreshCw } from 'lucide-react';
 
 export default function StandingsPage() {
   const [standings, setStandings] = React.useState<Standing[]>([]);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     const teams = getTeams();
@@ -29,14 +33,30 @@ export default function StandingsPage() {
     setStandings(calculateStandings(teams, matches));
   }, []);
 
+  const handleReset = () => {
+    setMatches([]);
+    const teams = getTeams();
+    setStandings(calculateStandings(teams, []));
+    toast({
+        title: "Standings Reset",
+        description: "All matches have been cleared and points are reset."
+    });
+  };
+
   return (
     <div className="flex-1 p-4 md:p-8">
       <Card>
-        <CardHeader>
-          <CardTitle>League Standings</CardTitle>
-          <CardDescription>
-            Official standings for the 2026 season.
-          </CardDescription>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>League Standings</CardTitle>
+            <CardDescription>
+              Official standings for the 2026 season.
+            </CardDescription>
+          </div>
+          <Button variant="outline" onClick={handleReset}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Reset All Points
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
