@@ -66,9 +66,9 @@ export default function ImportPage() {
             return;
         }
         
-        const newTeamNames = lines.slice(1).map(line => line.trim()).filter(Boolean);
+        const teamNamesFromFile = lines.slice(1).map(line => line.trim()).filter(Boolean);
 
-        if (newTeamNames.length === 0) {
+        if (teamNamesFromFile.length === 0) {
             setStatus('error');
             setMessage('No team names found in the file.');
             return;
@@ -77,15 +77,25 @@ export default function ImportPage() {
         const existingTeams = getTeams();
         const existingTeamNames = new Set(existingTeams.map(t => t.name.toLowerCase()));
         
-        const uniqueNewTeams = newTeamNames.filter(name => !existingTeamNames.has(name.toLowerCase()));
+        const newUniqueTeamNames = teamNamesFromFile.filter(name => !existingTeamNames.has(name.toLowerCase()));
+        const duplicateCount = teamNamesFromFile.length - newUniqueTeamNames.length;
 
-        if (uniqueNewTeams.length === 0) {
+        if (newUniqueTeamNames.length === 0) {
             setStatus('success');
-            setMessage('All teams from the file already exist.');
+            setMessage(`All ${teamNamesFromFile.length} team(s) in the file already exist. No new teams were added.`);
+            toast({
+                title: 'No new teams',
+                description: `All teams in the file were duplicates.`,
+            });
+            // Reset file input even if no new teams are added
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            setFile(null);
             return;
         }
 
-        const newTeams: Team[] = uniqueNewTeams.map((name, index) => {
+        const newTeams: Team[] = newUniqueTeamNames.map((name, index) => {
             const id = `team-${Date.now()}-${index}`;
             return {
                 id,
@@ -97,11 +107,13 @@ export default function ImportPage() {
 
         saveTeams([...existingTeams, ...newTeams]);
         
+        const successMsg = `${newTeams.length} new teams imported successfully. ${duplicateCount > 0 ? `${duplicateCount} duplicates were skipped.` : ''}`;
+        
         setStatus('success');
-        setMessage(`${newTeams.length} new teams imported successfully. Please refresh other pages to see the changes.`);
+        setMessage(successMsg + ' Please refresh other pages to see the changes.');
         toast({
             title: 'Import Successful',
-            description: `${newTeams.length} new teams were added.`,
+            description: successMsg,
         });
 
       } catch (err) {
@@ -145,7 +157,7 @@ export default function ImportPage() {
         <CardHeader>
           <CardTitle>Import Teams</CardTitle>
           <CardDescription>
-            Upload a CSV file with team names to add them in bulk.
+            Upload a CSV file with team names to add them in bulk. Existing teams will not be affected.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -180,7 +192,7 @@ export default function ImportPage() {
             <Alert variant={status === 'error' ? 'destructive' : 'default'}>
                 {status === 'success' ? <FileCheck2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <AlertTitle>
-                {status === 'success' ? 'Import Successful' : 'Import Failed'}
+                {status === 'success' ? 'Import Complete' : 'Import Failed'}
               </AlertTitle>
               <AlertDescription>{message}</AlertDescription>
             </Alert>
