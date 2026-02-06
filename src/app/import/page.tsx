@@ -173,7 +173,7 @@ export default function ImportPage() {
                 {status === 'success' ? <FileCheck2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <AlertTitle>
                 {status === 'success' ? 'Import Complete' : 'Import Failed'}
-              </Aler_Title>
+              </AlertTitle>
               <AlertDescription>{message}</AlertDescription>
             </Alert>
           )}
