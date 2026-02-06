@@ -22,15 +22,15 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+        <div className="flex justify-between items-center gap-2">
+          <div className="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
             <Avatar className="h-12 w-12">
               <AvatarImage src={match.team1.logoUrl} alt={match.team1.name} />
               <AvatarFallback>{match.team1.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-sm">{match.team1.name}</span>
+            <span className="font-semibold text-sm truncate w-full">{match.team1.name}</span>
           </div>
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center px-2">
             {match.status === 'played' ? (
               <span className="text-3xl font-bold">
                 {match.score1} - {match.score2}
@@ -38,16 +38,16 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
             ) : (
               <span className="font-bold text-muted-foreground">VS</span>
             )}
-            <span className="text-xs text-muted-foreground mt-1">
+            <span className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
               {format(new Date(match.date), 'MMM d, yyyy')}
             </span>
           </div>
-          <div className="flex flex-col items-center gap-2 w-1/3 text-center">
+          <div className="flex flex-col items-center gap-2 flex-1 text-center min-w-0">
             <Avatar className="h-12 w-12">
               <AvatarImage src={match.team2.logoUrl} alt={match.team2.name} />
               <AvatarFallback>{match.team2.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-sm">{match.team2.name}</span>
+            <span className="font-semibold text-sm truncate w-full">{match.team2.name}</span>
           </div>
         </div>
         {match.status === 'upcoming' && (

@@ -67,7 +67,7 @@ export default function DashboardPage() {
                     {topTeams[0].team.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-2xl font-bold">{topTeams[0].team.name}</div>
+                <div className="text-2xl font-bold truncate">{topTeams[0].team.name}</div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No matches played yet.</p>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Team</TableHead>
-                  <TableHead className="text-center">Played</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Played</TableHead>
                   <TableHead className="text-center">Wins</TableHead>
                   <TableHead className="text-right">Points</TableHead>
                 </TableRow>
@@ -158,10 +158,10 @@ export default function DashboardPage() {
                             {standing.team.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="font-medium">{standing.team.name}</div>
+                        <div className="font-medium truncate">{standing.team.name}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden text-center sm:table-cell">
                       {standing.played}
                     </TableCell>
                     <TableCell className="text-center">{standing.win}</TableCell>
@@ -185,8 +185,8 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="grid gap-8">
             {nextMatch ? (
-              <div className="flex items-center justify-around">
-                <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center justify-around gap-2">
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
                   <Avatar className="h-16 w-16">
                     <AvatarImage
                       src={nextMatch.team1.logoUrl}
@@ -196,17 +196,17 @@ export default function DashboardPage() {
                       {nextMatch.team1.name.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold">{nextMatch.team1.name}</span>
+                  <span className="font-semibold truncate w-full text-center">{nextMatch.team1.name}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-2xl font-bold text-muted-foreground">
                     VS
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
                     {format(new Date(nextMatch.date), 'PP')}
                   </span>
                 </div>
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
                   <Avatar className="h-16 w-16">
                     <AvatarImage
                       src={nextMatch.team2.logoUrl}
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                       {nextMatch.team2.name.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold">{nextMatch.team2.name}</span>
+                  <span className="font-semibold truncate w-full text-center">{nextMatch.team2.name}</span>
                 </div>
               </div>
             ) : (

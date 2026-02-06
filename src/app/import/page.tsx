@@ -141,7 +141,7 @@ export default function ImportPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2 p-4 border rounded-lg flex justify-between items-start">
+          <div className="space-y-4 md:space-y-2 p-4 border rounded-lg flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
               <h4 className="font-semibold">CSV Format Instructions</h4>
               <p className="text-sm text-muted-foreground">
@@ -151,7 +151,7 @@ export default function ImportPage() {
                 Example row: <code>New Team FC</code>
               </p>
             </div>
-            <Button variant="outline" onClick={handleDownloadTemplate}>
+            <Button variant="outline" onClick={handleDownloadTemplate} className="w-full md:w-auto">
                 <Download className="mr-2 h-4 w-4" />
                 Download Template
             </Button>
