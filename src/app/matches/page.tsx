@@ -17,6 +17,8 @@ import { format } from 'date-fns';
 import { Calendar, Swords, Trophy, Sparkles } from 'lucide-react';
 import { MatchScoreDialog } from '@/components/match-score-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (match: Match) => void; }) {
   return (
@@ -60,49 +62,77 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
   );
 }
 
-function BracketGenerator({ onGenerate }: { onGenerate: (matches: Match[]) => void; }) {
+function MatchGenerator({ onGenerate }: { onGenerate: (matches: Match[]) => void; }) {
     const { toast } = useToast();
-  
+    const [generationType, setGenerationType] = React.useState<'bracket' | 'round-robin'>('bracket');
+
     const handleGenerate = () => {
         const teams = getTeams();
         if (teams.length < 2) {
             toast({
                 title: "Not enough teams",
-                description: "You need at least 2 teams to generate a bracket.",
+                description: "You need at least 2 teams to generate matches.",
                 variant: "destructive",
             });
             return;
         }
 
-        const shuffled = [...teams].sort(() => 0.5 - Math.random());
-        const newMatches: Match[] = [];
-        for (let i = 0; i < shuffled.length; i += 2) {
-            if (shuffled[i+1]) {
-                newMatches.push({
-                    id: `gen-match-${i/2}`,
-                    team1: shuffled[i],
-                    team2: shuffled[i+1],
-                    score1: null,
-                    score2: null,
-                    date: new Date().toISOString(),
-                    status: 'upcoming',
-                });
+        let newMatches: Match[] = [];
+        if (generationType === 'bracket') {
+            const shuffled = [...teams].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < shuffled.length; i += 2) {
+                if (shuffled[i+1]) {
+                    newMatches.push({
+                        id: `match-${Date.now()}-${i/2}`,
+                        team1: shuffled[i],
+                        team2: shuffled[i+1],
+                        score1: null,
+                        score2: null,
+                        date: new Date().toISOString(),
+                        status: 'upcoming',
+                    });
+                }
+            }
+        } else { // round-robin
+            for (let i = 0; i < teams.length; i++) {
+                for (let j = i + 1; j < teams.length; j++) {
+                    newMatches.push({
+                        id: `match-${Date.now()}-${i}-${j}`,
+                        team1: teams[i],
+                        team2: teams[j],
+                        score1: null,
+                        score2: null,
+                        date: new Date().toISOString(),
+                        status: 'upcoming',
+                    });
+                }
             }
         }
+
         onGenerate(newMatches);
         toast({
-            title: "Bracket Generated!",
-            description: "A new set of matches has been created.",
+            title: "Matches Generated!",
+            description: `A new ${generationType} schedule has been created with ${newMatches.length} matches.`,
         });
     }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Generate Bracket</CardTitle>
-                <CardDescription>Randomly create pairings for a new tournament round. This will replace all existing upcoming matches.</CardDescription>
+                <CardTitle>Generate Matches</CardTitle>
+                <CardDescription>Create pairings for a new tournament. This will replace all existing upcoming matches.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+                 <RadioGroup value={generationType} onValueChange={(value) => setGenerationType(value as 'bracket' | 'round-robin')} className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="bracket" id="bracket" />
+                        <Label htmlFor="bracket">Bracket</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="round-robin" id="round-robin" />
+                        <Label htmlFor="round-robin">Round Robin</Label>
+                    </div>
+                </RadioGroup>
                 <Button onClick={handleGenerate}>
                     <Sparkles className="mr-2 h-4 w-4" />
                     Generate New Matches
@@ -154,7 +184,7 @@ export default function MatchesPage() {
 
   return (
     <div className="flex-1 p-4 md:p-8 space-y-8">
-        <BracketGenerator onGenerate={handleGenerateBracket} />
+        <MatchGenerator onGenerate={handleGenerateBracket} />
 
       <Card>
         <CardHeader>
