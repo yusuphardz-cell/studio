@@ -1,3 +1,6 @@
+'use client';
+
+import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
@@ -15,11 +18,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { calculateStandings, getMatches, getTeams } from '@/lib/data';
+import type { Standing } from '@/lib/types';
 
 export default function StandingsPage() {
-  const teams = getTeams();
-  const matches = getMatches();
-  const standings = calculateStandings(teams, matches);
+  const [standings, setStandings] = React.useState<Standing[]>([]);
+
+  React.useEffect(() => {
+    const teams = getTeams();
+    const matches = getMatches();
+    setStandings(calculateStandings(teams, matches));
+  }, []);
 
   return (
     <div className="flex-1 p-4 md:p-8">

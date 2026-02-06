@@ -13,6 +13,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
+import { getTeams, saveTeams } from '@/lib/data';
+import type { Team } from '@/lib/types';
+
 
 export default function ImportPage() {
   const { toast } = useToast();
@@ -39,27 +42,80 @@ export default function ImportPage() {
       return;
     }
 
-    // This is a placeholder for the actual CSV parsing and data handling.
-    // In a real app, you would read the file content and add new teams.
-    console.log('Importing file:', file.name);
-    
-    // Simulate a successful import
-    setTimeout(() => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result;
+      if (typeof text !== 'string') {
+        setStatus('error');
+        setMessage('Could not read file.');
+        return;
+      }
+      
+      try {
+        const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+        if (lines.length < 2) {
+            setStatus('error');
+            setMessage('CSV file must contain a header and at least one team name.');
+            return;
+        }
+
+        const header = lines[0].trim().toLowerCase();
+        if (header !== 'name') {
+            setStatus('error');
+            setMessage('Invalid CSV format. The first line must be a header with a single column: "name".');
+            return;
+        }
+        
+        const newTeamNames = lines.slice(1).map(line => line.trim()).filter(Boolean);
+
+        if (newTeamNames.length === 0) {
+            setStatus('error');
+            setMessage('No team names found in the file.');
+            return;
+        }
+
+        const existingTeams = getTeams();
+        const existingTeamNames = new Set(existingTeams.map(t => t.name.toLowerCase()));
+        
+        const uniqueNewTeams = newTeamNames.filter(name => !existingTeamNames.has(name.toLowerCase()));
+
+        if (uniqueNewTeams.length === 0) {
+            setStatus('success');
+            setMessage('All teams from the file already exist.');
+            return;
+        }
+
+        const newTeams: Team[] = uniqueNewTeams.map((name, index) => {
+            const id = `team-${Date.now()}-${index}`;
+            return {
+                id,
+                name,
+                logoUrl: `https://picsum.photos/seed/${id}/200/200`,
+                dataAiHint: name.split(' ')[0].toLowerCase()
+            };
+        });
+
+        saveTeams([...existingTeams, ...newTeams]);
+        
         setStatus('success');
-        setMessage(`${file.name} has been imported successfully. New teams were added.`);
-    }, 1000);
+        setMessage(`${newTeams.length} new teams imported successfully. Please refresh other pages to see the changes.`);
+        toast({
+            title: 'Import Successful',
+            description: `${newTeams.length} new teams were added.`,
+        });
 
-    // To simulate an error:
-    // setTimeout(() => {
-    //     setStatus('error');
-    //     setMessage(`Error in ${file.name} on line 2: Team name cannot be empty.`);
-    // }, 1000);
+      } catch (err) {
+        setStatus('error');
+        setMessage('An error occurred while parsing the file.');
+        console.error(err);
+      }
+    };
+    reader.onerror = () => {
+        setStatus('error');
+        setMessage('Failed to read file.');
+    }
 
-
-    toast({
-      title: 'Import Started',
-      description: `Processing ${file.name}...`,
-    });
+    reader.readAsText(file);
     
     // Reset file input
     if (fileInputRef.current) {

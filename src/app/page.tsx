@@ -1,3 +1,6 @@
+'use client';
+
+import * as React from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -24,12 +27,23 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { calculateStandings, getMatches, getTeams } from '@/lib/data';
+import type { Team, Match, Standing } from '@/lib/types';
 import { format } from 'date-fns';
 
 export default function DashboardPage() {
-  const teams = getTeams();
-  const matches = getMatches();
-  const standings = calculateStandings(teams, matches);
+  const [teams, setTeams] = React.useState<Team[]>([]);
+  const [matches, setMatches] = React.useState<Match[]>([]);
+  const [standings, setStandings] = React.useState<Standing[]>([]);
+
+  React.useEffect(() => {
+    const currentTeams = getTeams();
+    const currentMatches = getMatches();
+    const currentStandings = calculateStandings(currentTeams, currentMatches);
+    setTeams(currentTeams);
+    setMatches(currentMatches);
+    setStandings(currentStandings);
+  }, []);
+
   const topTeams = standings.slice(0, 3);
   const nextMatch = matches.find((m) => m.status === 'upcoming');
 
