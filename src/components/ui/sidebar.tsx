@@ -63,6 +63,11 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
+      // This is the important part: filter out the Next.js specific props
+      // before they are passed down to the underlying div.
+      params,
+      searchParams,
+      ...props
     },
     ref
   ) => {
@@ -144,6 +149,7 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
+            {...props}
           >
             {children}
           </div>
