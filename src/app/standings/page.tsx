@@ -27,16 +27,22 @@ export default function StandingsPage() {
   const [standings, setStandings] = React.useState<Standing[]>([]);
   const { toast } = useToast();
 
-  React.useEffect(() => {
+  const refreshData = React.useCallback(() => {
     const teams = getTeams();
     const matches = getMatches();
     setStandings(calculateStandings(teams, matches));
   }, []);
 
+  React.useEffect(() => {
+    refreshData();
+    window.addEventListener('storage', refreshData);
+    return () => {
+      window.removeEventListener('storage', refreshData);
+    };
+  }, [refreshData]);
+
   const handleReset = () => {
     setMatches([]);
-    const teams = getTeams();
-    setStandings(calculateStandings(teams, []));
     toast({
         title: "Standings Reset",
         description: "All matches have been cleared and points are reset."

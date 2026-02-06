@@ -118,9 +118,17 @@ export default function MatchesPage() {
   const [isDialogOpen, setDialogOpen] = React.useState(false);
   const { toast } = useToast();
 
-  React.useEffect(() => {
+  const refreshData = React.useCallback(() => {
     setMatches(getMatches());
   }, []);
+
+  React.useEffect(() => {
+    refreshData();
+    window.addEventListener('storage', refreshData);
+    return () => {
+      window.removeEventListener('storage', refreshData);
+    };
+  }, [refreshData]);
 
   const upcomingMatches = matches.filter((m) => m.status === 'upcoming');
   const playedMatches = matches.filter((m) => m.status === 'played');
@@ -132,8 +140,7 @@ export default function MatchesPage() {
 
   const handleSaveScore = (match: Match, score1: number, score2: number) => {
     const updatedMatch: Match = { ...match, score1, score2, status: 'played' };
-    saveMatch(updatedMatch); // Persist change
-    setMatches(getMatches()); // Re-fetch from "DB"
+    saveMatch(updatedMatch); // Persist change, which will trigger storage event
     setDialogOpen(false);
     toast({
         title: "Score Recorded",
@@ -142,8 +149,7 @@ export default function MatchesPage() {
   };
 
   const handleGenerateBracket = (newMatches: Match[]) => {
-    saveAllMatches(newMatches);
-    setMatches(newMatches);
+    saveAllMatches(newMatches); // This will trigger storage event
   }
 
   return (

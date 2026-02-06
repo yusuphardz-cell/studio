@@ -15,9 +15,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export default function TeamsPage() {
   const [teams, setTeams] = React.useState<Team[]>([]);
 
-  React.useEffect(() => {
+  const refreshData = React.useCallback(() => {
     setTeams(getTeams());
   }, []);
+
+  React.useEffect(() => {
+    refreshData();
+    window.addEventListener('storage', refreshData);
+    return () => {
+      window.removeEventListener('storage', refreshData);
+    };
+  }, [refreshData]);
 
   return (
     <div className="flex-1 p-4 md:p-8">

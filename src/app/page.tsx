@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const [matches, setMatches] = React.useState<Match[]>([]);
   const [standings, setStandings] = React.useState<Standing[]>([]);
 
-  React.useEffect(() => {
+  const refreshData = React.useCallback(() => {
     const currentTeams = getTeams();
     const currentMatches = getMatches();
     const currentStandings = calculateStandings(currentTeams, currentMatches);
@@ -43,6 +43,14 @@ export default function DashboardPage() {
     setMatches(currentMatches);
     setStandings(currentStandings);
   }, []);
+
+  React.useEffect(() => {
+    refreshData();
+    window.addEventListener('storage', refreshData);
+    return () => {
+      window.removeEventListener('storage', refreshData);
+    };
+  }, [refreshData]);
 
   const topTeams = standings.slice(0, 3);
   const nextMatch = matches.find((m) => m.status === 'upcoming');

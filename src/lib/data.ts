@@ -6,6 +6,12 @@ function getDefaultMatches(teams: Team[]): Match[] {
     return [];
 }
 
+const dispatchStorageEvent = () => {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
+    }
+}
+
 // Teams
 export function getTeams(): Team[] {
   if (typeof window === 'undefined') return defaultTeams;
@@ -16,6 +22,7 @@ export function getTeams(): Team[] {
 export function saveTeams(teams: Team[]): void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem('ligamanager-teams', JSON.stringify(teams));
+  dispatchStorageEvent();
 }
 
 // Matches
@@ -27,6 +34,7 @@ export function getMatches(): Match[] {
     
     if (stored) {
         const rawMatches = JSON.parse(stored);
+        if (!Array.isArray(rawMatches)) return [];
         return rawMatches.map((match: any) => ({
             ...match,
             team1: teams.find(t => t.id === match.team1Id),
@@ -64,6 +72,7 @@ export function setMatches(newMatches: Match[]): void {
         status: m.status
     }));
     window.localStorage.setItem('ligamanager-matches', JSON.stringify(storableMatches));
+    dispatchStorageEvent();
 }
 
 export function calculateStandings(teams: Team[], matches: Match[]): Standing[] {
