@@ -9,6 +9,7 @@ import {
   Swords,
   Users,
   Upload,
+  FileText,
 } from 'lucide-react';
 
 import {
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/matches', label: 'Matches', icon: Swords },
   { href: '/teams', label: 'Teams', icon: Users },
   { href: '/import', label: 'Import', icon: Upload },
+  { href: '/report', label: 'Report', icon: FileText },
 ];
 
 export function MainNav() {
