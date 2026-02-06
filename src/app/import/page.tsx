@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
-import { getTeams, saveTeams } from '@/lib/data';
+import { saveTeams, setMatches } from '@/lib/data';
 import type { Team } from '@/lib/types';
 
 
@@ -74,28 +74,7 @@ export default function ImportPage() {
             return;
         }
 
-        const existingTeams = getTeams();
-        const existingTeamNames = new Set(existingTeams.map(t => t.name.toLowerCase()));
-        
-        const newUniqueTeamNames = teamNamesFromFile.filter(name => !existingTeamNames.has(name.toLowerCase()));
-        const duplicateCount = teamNamesFromFile.length - newUniqueTeamNames.length;
-
-        if (newUniqueTeamNames.length === 0) {
-            setStatus('success');
-            setMessage(`All ${teamNamesFromFile.length} team(s) in the file already exist. No new teams were added.`);
-            toast({
-                title: 'No new teams',
-                description: `All teams in the file were duplicates.`,
-            });
-            // Reset file input even if no new teams are added
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-            setFile(null);
-            return;
-        }
-
-        const newTeams: Team[] = newUniqueTeamNames.map((name, index) => {
+        const newTeams: Team[] = teamNamesFromFile.map((name, index) => {
             const id = `team-${Date.now()}-${index}`;
             return {
                 id,
@@ -105,12 +84,13 @@ export default function ImportPage() {
             };
         });
 
-        saveTeams([...existingTeams, ...newTeams]);
+        saveTeams(newTeams);
+        setMatches([]); // Clear existing matches as they are now invalid
         
-        const successMsg = `${newTeams.length} new teams imported successfully. ${duplicateCount > 0 ? `${duplicateCount} duplicates were skipped.` : ''}`;
+        const successMsg = `${newTeams.length} teams imported, replacing all previous data. Existing matches have been cleared.`;
         
         setStatus('success');
-        setMessage(successMsg + ' Please refresh other pages to see the changes.');
+        setMessage(successMsg);
         toast({
             title: 'Import Successful',
             description: successMsg,
@@ -157,7 +137,7 @@ export default function ImportPage() {
         <CardHeader>
           <CardTitle>Import Teams</CardTitle>
           <CardDescription>
-            Upload a CSV file with team names to add them in bulk. Existing teams will not be affected.
+            Upload a CSV file with team names to add them in bulk. This will replace all existing teams and matches.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -193,7 +173,7 @@ export default function ImportPage() {
                 {status === 'success' ? <FileCheck2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <AlertTitle>
                 {status === 'success' ? 'Import Complete' : 'Import Failed'}
-              </AlertTitle>
+              </Aler_Title>
               <AlertDescription>{message}</AlertDescription>
             </Alert>
           )}
