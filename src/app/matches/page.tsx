@@ -30,7 +30,7 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
               <AvatarImage src={match.team1.logoUrl} alt={match.team1.name} />
               <AvatarFallback>{match.team1.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-sm truncate w-full">{match.team1.name}</span>
+            <span className="font-semibold text-sm w-full break-words text-center">{match.team1.name}</span>
           </div>
           <div className="flex flex-col items-center text-center px-2">
             {match.status === 'played' ? (
@@ -49,7 +49,7 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
               <AvatarImage src={match.team2.logoUrl} alt={match.team2.name} />
               <AvatarFallback>{match.team2.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-sm truncate w-full">{match.team2.name}</span>
+            <span className="font-semibold text-sm w-full break-words text-center">{match.team2.name}</span>
           </div>
         </div>
         {match.status === 'upcoming' && (

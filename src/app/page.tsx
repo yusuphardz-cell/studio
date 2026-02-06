@@ -75,7 +75,7 @@ export default function DashboardPage() {
                     {topTeams[0].team.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-2xl font-bold truncate">{topTeams[0].team.name}</div>
+                <div className="text-2xl font-bold break-words">{topTeams[0].team.name}</div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No matches played yet.</p>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                             {standing.team.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="font-medium truncate">{standing.team.name}</div>
+                        <div className="font-medium break-words">{standing.team.name}</div>
                       </div>
                     </TableCell>
                     <TableCell className="hidden text-center sm:table-cell">
@@ -204,7 +204,7 @@ export default function DashboardPage() {
                       {nextMatch.team1.name.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold truncate w-full text-center">{nextMatch.team1.name}</span>
+                  <span className="font-semibold w-full text-center break-words">{nextMatch.team1.name}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-2xl font-bold text-muted-foreground">
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                       {nextMatch.team2.name.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold truncate w-full text-center">{nextMatch.team2.name}</span>
+                  <span className="font-semibold w-full text-center break-words">{nextMatch.team2.name}</span>
                 </div>
               </div>
             ) : (

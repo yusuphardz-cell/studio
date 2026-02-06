@@ -92,9 +92,9 @@ export default function StandingsPage() {
                           alt={s.team.name}
                           data-ai-hint={s.team.dataAiHint}
                         />
-                        <AvatarFallback>{s.team.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>{s.team.name.slice(0, 2)}</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium truncate">{s.team.name}</span>
+                      <span className="font-medium break-words">{s.team.name}</span>
                     </div>
                   </TableCell>
                   <TableCell className="hidden text-center md:table-cell">{s.played}</TableCell>

@@ -50,7 +50,7 @@ export default function TeamsPage() {
                       />
                       <AvatarFallback>{team.name.slice(0, 2)}</AvatarFallback>
                     </Avatar>
-                    <span className="font-semibold">{team.name}</span>
+                    <span className="font-semibold break-words">{team.name}</span>
                   </CardContent>
                 </Card>
               ))}
