@@ -39,20 +39,20 @@ export default function ImportPage() {
       return;
     }
 
-    // This is a placeholder for the actual CSV parsing and validation logic.
-    // In a real app, you would read the file content and process it.
+    // This is a placeholder for the actual CSV parsing and data handling.
+    // In a real app, you would read the file content and add new teams.
     console.log('Importing file:', file.name);
     
     // Simulate a successful import
     setTimeout(() => {
         setStatus('success');
-        setMessage(`${file.name} has been imported successfully. 10 match records were updated.`);
+        setMessage(`${file.name} has been imported successfully. New teams were added.`);
     }, 1000);
 
     // To simulate an error:
     // setTimeout(() => {
     //     setStatus('error');
-    //     setMessage(`Error in ${file.name} on line 5: Invalid team ID 'XYZ'.`);
+    //     setMessage(`Error in ${file.name} on line 2: Team name cannot be empty.`);
     // }, 1000);
 
 
@@ -69,14 +69,14 @@ export default function ImportPage() {
   };
   
   const handleDownloadTemplate = () => {
-    const headers = ['team1_id', 'team2_id', 'score1', 'score2', 'date'];
-    const exampleRow = ['team-1', 'team-2', '3', '1', '2024-07-28'];
+    const headers = ['name'];
+    const exampleRow = ['New Team FC'];
     const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", "match_data_template.csv");
+    link.setAttribute("download", "teams_template.csv");
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -87,9 +87,9 @@ export default function ImportPage() {
     <div className="flex-1 p-4 md:p-8">
       <Card>
         <CardHeader>
-          <CardTitle>Import Match Data</CardTitle>
+          <CardTitle>Import Teams</CardTitle>
           <CardDescription>
-            Upload a CSV file with match records to bulk-update the league.
+            Upload a CSV file with team names to add them in bulk.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -97,11 +97,10 @@ export default function ImportPage() {
             <div>
               <h4 className="font-semibold">CSV Format Instructions</h4>
               <p className="text-sm text-muted-foreground">
-                Your CSV file must have a header row and the following columns in
-                order: <code>team1_id</code>, <code>team2_id</code>, <code>score1</code>, <code>score2</code>, <code>date</code>.
+                Your CSV file must have a header row with a single column: <code>name</code>.
               </p>
               <p className="text-sm text-muted-foreground">
-                Example: <code>team-1,team-2,3,1,2024-07-28</code>
+                Example row: <code>New Team FC</code>
               </p>
             </div>
             <Button variant="outline" onClick={handleDownloadTemplate}>
