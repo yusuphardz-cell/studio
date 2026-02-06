@@ -25,7 +25,7 @@ export default function TeamsPage() {
         <CardHeader>
           <CardTitle>Teams</CardTitle>
           <CardDescription>
-            All teams participating in the 2024 season.
+            All teams participating in the 2026 season.
           </CardDescription>
         </CardHeader>
         <CardContent>

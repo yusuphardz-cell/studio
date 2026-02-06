@@ -113,7 +113,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">Ongoing</div>
             <p className="text-xs text-muted-foreground">
-              2024 Season
+              2026 Season
             </p>
           </CardContent>
         </Card>

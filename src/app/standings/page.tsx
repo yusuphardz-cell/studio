@@ -35,7 +35,7 @@ export default function StandingsPage() {
         <CardHeader>
           <CardTitle>League Standings</CardTitle>
           <CardDescription>
-            Official standings for the 2024 season.
+            Official standings for the 2026 season.
           </CardDescription>
         </CardHeader>
         <CardContent>
