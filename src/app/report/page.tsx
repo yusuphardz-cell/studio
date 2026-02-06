@@ -53,8 +53,11 @@ export default function ReportPage() {
       return;
     }
 
-    const filter = (node: HTMLElement) => {
-      return !node.classList.contains('no-export');
+    const filter = (node: Node) => {
+      if (node instanceof HTMLElement) {
+        return !node.classList.contains('no-export');
+      }
+      return true;
     };
 
     toJpeg(reportCardRef.current, {
