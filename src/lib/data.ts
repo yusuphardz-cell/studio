@@ -1,22 +1,9 @@
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Team, Match, Standing } from '@/lib/types';
-import { addDays } from 'date-fns';
 
-const defaultTeams: Team[] = PlaceHolderImages.map((img) => ({
-  id: img.id,
-  name: img.imageHint.replace(' logo', '').replace(/^\w/, (c) => c.toUpperCase()) + 's',
-  logoUrl: img.imageUrl,
-  dataAiHint: img.imageHint,
-}));
+const defaultTeams: Team[] = [];
 
 function getDefaultMatches(teams: Team[]): Match[] {
-    if (teams.length < 8) return [];
-    return [
-        { id: 'match-1', team1: teams[0], team2: teams[1], score1: 2, score2: 1, date: new Date().toISOString(), status: 'played' },
-        { id: 'match-2', team1: teams[2], team2: teams[3], score1: 0, score2: 0, date: new Date().toISOString(), status: 'played' },
-        { id: 'match-3', team1: teams[4], team2: teams[5], score1: null, score2: null, date: addDays(new Date(), 2).toISOString(), status: 'upcoming' },
-        { id: 'match-4', team1: teams[6], team2: teams[7], score1: null, score2: null, date: addDays(new Date(), 3).toISOString(), status: 'upcoming' },
-    ];
+    return [];
 }
 
 // Teams
@@ -44,7 +31,7 @@ export function getMatches(): Match[] {
             ...match,
             team1: teams.find(t => t.id === match.team1Id),
             team2: teams.find(t => t.id === match.team2Id),
-        })).filter((m: { team1: Team, team2: Team }) => m.team1 && m.team2);
+        })).filter((m: any) => m.team1 && m.team2);
     }
     
     // if no matches stored, return defaults only if teams are default
