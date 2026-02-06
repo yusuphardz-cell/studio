@@ -113,13 +113,13 @@ export default function ReportPage() {
               <TableRow>
                 <TableHead className="w-[50px] text-center">Rank</TableHead>
                 <TableHead>Team</TableHead>
-                <TableHead className="text-center">Played</TableHead>
+                <TableHead className="hidden text-center md:table-cell">Played</TableHead>
                 <TableHead className="text-center">W</TableHead>
-                <TableHead className="text-center">D</TableHead>
-                <TableHead className="text-center">L</TableHead>
-                <TableHead className="text-center">GF</TableHead>
-                <TableHead className="text-center">GA</TableHead>
-                <TableHead className="text-center">GD</TableHead>
+                <TableHead className="hidden text-center md:table-cell">D</TableHead>
+                <TableHead className="hidden text-center md:table-cell">L</TableHead>
+                <TableHead className="hidden text-center md:table-cell">GF</TableHead>
+                <TableHead className="hidden text-center md:table-cell">GA</TableHead>
+                <TableHead className="hidden text-center md:table-cell">GD</TableHead>
                 <TableHead className="text-right">Points</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,13 +140,13 @@ export default function ReportPage() {
                       <span className="font-medium break-words">{s.team.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center">{s.played}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.played}</TableCell>
                   <TableCell className="text-center">{s.win}</TableCell>
-                  <TableCell className="text-center">{s.draw}</TableCell>
-                  <TableCell className="text-center">{s.loss}</TableCell>
-                  <TableCell className="text-center">{s.goalsFor}</TableCell>
-                  <TableCell className="text-center">{s.goalsAgainst}</TableCell>
-                  <TableCell className="text-center">{s.goalDifference}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.draw}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.loss}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.goalsFor}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.goalsAgainst}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{s.goalDifference}</TableCell>
                   <TableCell className="text-right font-bold">
                     {s.points}
                   </TableCell>
