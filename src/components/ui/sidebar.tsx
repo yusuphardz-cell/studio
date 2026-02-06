@@ -63,7 +63,6 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
-      ...props
     },
     ref
   ) => {
@@ -145,7 +144,6 @@ const SidebarProvider = React.forwardRef<
               className
             )}
             ref={ref}
-            {...props}
           >
             {children}
           </div>
