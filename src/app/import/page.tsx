@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Upload, FileCheck2, AlertCircle } from 'lucide-react';
+import { Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
 
 export default function ImportPage() {
   const { toast } = useToast();
@@ -67,6 +67,21 @@ export default function ImportPage() {
     }
     setFile(null);
   };
+  
+  const handleDownloadTemplate = () => {
+    const headers = ['team1_id', 'team2_id', 'score1', 'score2', 'date'];
+    const exampleRow = ['team-1', 'team-2', '3', '1', '2024-07-28'];
+    const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "match_data_template.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="flex-1 p-4 md:p-8">
@@ -78,15 +93,21 @@ export default function ImportPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2 p-4 border rounded-lg">
-            <h4 className="font-semibold">CSV Format Instructions</h4>
-            <p className="text-sm text-muted-foreground">
-              Your CSV file must have a header row and the following columns in
-              order: <code>team1_id</code>, <code>team2_id</code>, <code>score1</code>, <code>score2</code>, <code>date</code>.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Example: <code>team-1,team-2,3,1,2024-07-28</code>
-            </p>
+          <div className="space-y-2 p-4 border rounded-lg flex justify-between items-start">
+            <div>
+              <h4 className="font-semibold">CSV Format Instructions</h4>
+              <p className="text-sm text-muted-foreground">
+                Your CSV file must have a header row and the following columns in
+                order: <code>team1_id</code>, <code>team2_id</code>, <code>score1</code>, <code>score2</code>, <code>date</code>.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Example: <code>team-1,team-2,3,1,2024-07-28</code>
+              </p>
+            </div>
+            <Button variant="outline" onClick={handleDownloadTemplate}>
+                <Download className="mr-2 h-4 w-4" />
+                Download Template
+            </Button>
           </div>
 
           <div className="space-y-2">
