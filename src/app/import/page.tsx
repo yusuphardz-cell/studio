@@ -159,7 +159,7 @@ export default function ImportPage() {
 
           <div className="space-y-2">
             <label htmlFor="csv-upload" className="font-medium text-sm">Upload CSV File</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input id="csv-upload" type="file" accept=".csv" onChange={handleFileChange} ref={fileInputRef} />
               <Button onClick={handleImport} disabled={!file}>
                 <Upload className="mr-2 h-4 w-4" />

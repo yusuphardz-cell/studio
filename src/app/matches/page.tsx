@@ -34,7 +34,7 @@ function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (mat
           </div>
           <div className="flex flex-col items-center text-center px-2">
             {match.status === 'played' ? (
-              <span className="text-3xl font-bold">
+              <span className="text-2xl font-bold sm:text-3xl">
                 {match.score1} - {match.score2}
               </span>
             ) : (
