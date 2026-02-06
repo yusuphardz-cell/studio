@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { toJpeg } from 'html-to-image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
@@ -20,10 +21,13 @@ import {
 import { calculateStandings, getMatches, getTeams } from '@/lib/data';
 import type { Standing } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ReportPage() {
   const [standings, setStandings] = React.useState<Standing[]>([]);
+  const reportCardRef = React.useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const refreshData = React.useCallback(() => {
     const teams = getTeams();
@@ -39,25 +43,65 @@ export default function ReportPage() {
     };
   }, [refreshData]);
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
+  const handleDownloadJpg = React.useCallback(() => {
+    if (reportCardRef.current === null) {
+      toast({
+        title: 'Error generating report',
+        description: 'Could not find the report content to download.',
+        variant: 'destructive',
+      });
+      return;
     }
-  };
+
+    const filter = (node: HTMLElement) => {
+      return !node.classList.contains('no-export');
+    };
+
+    toJpeg(reportCardRef.current, {
+      cacheBust: true,
+      backgroundColor: 'white',
+      quality: 0.95,
+      filter,
+    })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = 'standings-report.jpeg';
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast({
+          title: 'Download Started',
+          description: 'Your report is being downloaded as a JPG file.',
+        });
+      })
+      .catch((err) => {
+        console.error('Oops, something went wrong!', err);
+        toast({
+          title: 'Download Failed',
+          description: 'There was an error generating the JPG file.',
+          variant: 'destructive',
+        });
+      });
+  }, [reportCardRef, toast]);
 
   return (
     <div className="flex-1 p-4 md:p-8">
-      <Card>
+      <Card ref={reportCardRef}>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Standings Report</CardTitle>
             <CardDescription>
-              A printable report of the official standings for the 2026 season.
+              A downloadable report of the official standings for the 2026 season.
             </CardDescription>
           </div>
-          <Button variant="outline" onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print Report
+          <Button
+            variant="outline"
+            onClick={handleDownloadJpg}
+            className="no-export"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download JPG
           </Button>
         </CardHeader>
         <CardContent>
