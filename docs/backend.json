@@ -1,0 +1,172 @@
+{
+  "entities": {
+    "League": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "League",
+      "type": "object",
+      "description": "Represents a league with a specific year and configuration.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the League entity."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year this league cycle represents (e.g., 2024)."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the league."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the league."
+        }
+      },
+      "required": [
+        "id",
+        "year",
+        "name"
+      ]
+    },
+    "Participant": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Participant",
+      "type": "object",
+      "description": "Represents a team or player participating in a league.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Participant entity."
+        },
+        "leagueId": {
+          "type": "string",
+          "description": "Reference to League. (Relationship: League 1:N Participant)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the participant (team or player)."
+        },
+        "seed": {
+          "type": "number",
+          "description": "The seed of the participant, set after bracket generation."
+        }
+      },
+      "required": [
+        "id",
+        "leagueId",
+        "name"
+      ]
+    },
+    "Match": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Match",
+      "type": "object",
+      "description": "Represents a match between two participants in a league.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Match entity."
+        },
+        "leagueId": {
+          "type": "string",
+          "description": "Reference to League. (Relationship: League 1:N Match)"
+        },
+        "participant1Id": {
+          "type": "string",
+          "description": "Reference to Participant.  (Relationship: Participant 1:N Match as Participant1)"
+        },
+        "participant2Id": {
+          "type": "string",
+          "description": "Reference to Participant. (Relationship: Participant 1:N Match as Participant2)"
+        },
+        "participant1Score": {
+          "type": "number",
+          "description": "The score of participant 1 in the match."
+        },
+        "participant2Score": {
+          "type": "number",
+          "description": "The score of participant 2 in the match."
+        },
+        "matchDateTime": {
+          "type": "string",
+          "description": "The date and time of the match.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "leagueId",
+        "participant1Id",
+        "participant2Id"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/leagues/{leagueId}",
+        "definition": {
+          "entityName": "League",
+          "schema": {
+            "$ref": "#/backend/entities/League"
+          },
+          "description": "Stores league information. Includes league 'id', 'year', 'name', and 'description'.",
+          "params": [
+            {
+              "name": "leagueId",
+              "description": "The unique identifier for the league."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leagues/{leagueId}/participants/{participantId}",
+        "definition": {
+          "entityName": "Participant",
+          "schema": {
+            "$ref": "#/backend/entities/Participant"
+          },
+          "description": "Stores participant information for a specific league. Includes 'id', 'leagueId', 'name', and 'seed'.",
+          "params": [
+            {
+              "name": "leagueId",
+              "description": "The unique identifier for the league."
+            },
+            {
+              "name": "participantId",
+              "description": "The unique identifier for the participant."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leagues/{leagueId}/matches/{matchId}",
+        "definition": {
+          "entityName": "Match",
+          "schema": {
+            "$ref": "#/backend/entities/Match"
+          },
+          "description": "Stores match information for a specific league. Includes 'id', 'leagueId', 'participant1Id', 'participant2Id', 'participant1Score', 'participant2Score', and 'matchDateTime'.",
+          "params": [
+            {
+              "name": "leagueId",
+              "description": "The unique identifier for the league."
+            },
+            {
+              "name": "matchId",
+              "description": "The unique identifier for the match."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the LigaManager application, focusing on leagues, participants, and matches. It prioritizes authorization independence, clarity, and scalability.  Authorization independence is achieved via denormalization of league membership.  Homogeneous security is implemented to ensure efficient QAPs.  Specifically, all participant and match data are stored under their respective league document to simplify queries and enforce consistent security rules.\n\n- Leagues are stored in a top-level `leagues` collection.\n- Participants are stored in a subcollection `participants` under each league document. The `leagueId` is present in the Participant document, which facilitates querying all participants for a specific league. No additional membership data is stored at this level because typically anyone can see the participants in the league.\n- Matches are stored in a subcollection `matches` under each league document, similar to participants. This allows easy querying of all matches for a specific league. The `leagueId` is present in the Match document to allow for simple list operation security rules that require the league id be present on each `Match` document.\n"
+  }
+}

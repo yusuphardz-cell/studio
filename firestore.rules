@@ -1,0 +1,90 @@
+/**
+ * This ruleset governs the LigaManager application's Firestore database.
+ *
+ * Core Philosophy:
+ * The security model is designed for public read access while ensuring that all write
+ * operations are locked down by default. This allows any visitor, authenticated or not,
+ * to view league, participant, and match data. All data modification capabilities are
+ * disabled pending the implementation of an administrative or ownership role.
+ *
+ * Data Structure:
+ * The data is organized hierarchically. A top-level 'leagues' collection holds all
+ * league documents. Each league document contains 'participants' and 'matches'
+ * subcollections, creating a clear and isolated data tree for each league.
+ *
+ * Key Security Decisions:
+ * - Public Read-Only: All collections ('leagues', 'participants', 'matches') are configured
+ *   to be publicly readable by anyone. This supports the primary use case of displaying
+ *   league information on a website.
+ * - Writes Disabled by Default: A critical security decision has been made to disable all
+ *   write operations (`create`, `update`, `delete`) across the entire database. The
+ *   data models currently lack an 'ownerId', 'adminId', or similar field, making it
+ *   impossible to securely determine who is authorized to modify data. These rules
+ *   will need to be updated once an ownership model is added to the application schema.
+ * - No User-Specific Data: There are no user-specific collections (e.g., /users/{userId}),
+ *   as the current model does not involve user accounts managing data.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =====================================================================
+    // Helper Functions
+    // =====================================================================
+
+    // =====================================================================
+    // Collection Rules
+    // =====================================================================
+
+    /**
+     * @description Manages League documents, which are public to read but locked for writes.
+     * @path /leagues/{leagueId}
+     * @allow (get) Any user, signed in or not, can read a specific league's details.
+     * @deny (create) No user can create a new league, as there is no ownership model.
+     * @principle Public read access for general information, with writes disabled for security until an admin model is defined.
+     */
+    match /leagues/{leagueId} {
+      allow get: if true;
+      allow list: if true;
+
+      // CRITICAL: Cannot implement owner-only writes. The 'League' entity is missing an 'ownerId' or 'admin' field.
+      allow create: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow update: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Manages Participants in a league. Data is public read-only.
+     * @path /leagues/{leagueId}/participants/{participantId}
+     * @allow (list) Any user can list the participants for any league.
+     * @deny (create) No user can add a participant to a league.
+     * @principle Inherits the parent league's security model: public read, no writes.
+     */
+    match /leagues/{leagueId}/participants/{participantId} {
+      allow get: if true;
+      allow list: if true;
+
+      // Writes are disabled as they depend on administrative rights for the parent league.
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Manages Matches in a league. Data is public read-only.
+     * @path /leagues/{leagueId}/matches/{matchId}
+     * @allow (get) Any user can view the details of a specific match.
+     * @deny (update) No user can update a match score.
+     * @principle Inherits the parent league's security model: public read, no writes.
+     */
+    match /leagues/{leagueId}/matches/{matchId} {
+      allow get: if true;
+      allow list: if true;
+
+      // Writes are disabled as they depend on administrative rights for the parent league.
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
