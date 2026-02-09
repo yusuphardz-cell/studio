@@ -5,14 +5,21 @@ export type Team = {
   dataAiHint: string;
 };
 
-export type Match = {
+// This represents the object in Firestore
+export type StoredMatch = {
   id: string;
-  team1: Team;
-  team2: Team;
+  team1Id: string;
+  team2Id: string;
   score1: number | null;
   score2: number | null;
   date: string;
   status: 'played' | 'upcoming';
+};
+
+// This is what we'll use in components, after populating team data
+export type Match = Omit<StoredMatch, 'team1Id' | 'team2Id'> & {
+  team1: Team;
+  team2: Team;
 };
 
 export type Standing = {

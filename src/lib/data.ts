@@ -1,79 +1,82 @@
-import type { Team, Match, Standing } from '@/lib/types';
+import type { Team, Match, Standing, StoredMatch } from '@/lib/types';
+import {
+  collection,
+  doc,
+  writeBatch,
+  getDocs,
+  query,
+  where,
+  Firestore,
+} from 'firebase/firestore';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
-const defaultTeams: Team[] = [];
+export const LEAGUE_ID = 'default-league';
 
-function getDefaultMatches(teams: Team[]): Match[] {
-    return [];
+export async function saveTeams(firestore: Firestore, teams: Team[]) {
+  const participantsCollection = collection(firestore, 'leagues', LEAGUE_ID, 'participants');
+  
+  // Nuke and pave
+  const existingDocs = await getDocs(participantsCollection);
+  const deleteBatch = writeBatch(firestore);
+  existingDocs.forEach(doc => deleteBatch.delete(doc.ref));
+  await deleteBatch.commit();
+
+  const addBatch = writeBatch(firestore);
+  teams.forEach((team) => {
+    const { id, ...teamData } = team;
+    const newTeamRef = doc(participantsCollection, id);
+    addBatch.set(newTeamRef, teamData);
+  });
+  await addBatch.commit();
 }
 
-const dispatchStorageEvent = () => {
-    if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('storage'));
-    }
+export function updateMatch(firestore: Firestore, updatedMatch: Match): void {
+    const matchRef = doc(firestore, 'leagues', LEAGUE_ID, 'matches', updatedMatch.id);
+    const { team1, team2, ...rest } = updatedMatch;
+    const storableMatch: StoredMatch = {
+        ...rest,
+        team1Id: team1.id,
+        team2Id: team2.id,
+    };
+    updateDocumentNonBlocking(matchRef, storableMatch);
 }
 
-// Teams
-export function getTeams(): Team[] {
-  if (typeof window === 'undefined') return defaultTeams;
-  const stored = window.localStorage.getItem('ligamanager-teams');
-  return stored ? JSON.parse(stored) : defaultTeams;
-}
-
-export function saveTeams(teams: Team[]): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem('ligamanager-teams', JSON.stringify(teams));
-  dispatchStorageEvent();
-}
-
-// Matches
-export function getMatches(): Match[] {
-    if (typeof window === 'undefined') return getDefaultMatches(defaultTeams);
+export async function setMatches(firestore: Firestore, newMatches: Match[]): Promise<void> {
+    const matchesCollection = collection(firestore, 'leagues', LEAGUE_ID, 'matches');
     
-    const teams = getTeams();
-    const stored = window.localStorage.getItem('ligamanager-matches');
+    // Delete upcoming
+    const q = query(matchesCollection, where('status', '==', 'upcoming'));
+    const oldMatches = await getDocs(q);
+    const deleteBatch = writeBatch(firestore);
+    oldMatches.forEach(doc => deleteBatch.delete(doc.ref));
+    await deleteBatch.commit();
     
-    if (stored) {
-        const rawMatches = JSON.parse(stored);
-        if (!Array.isArray(rawMatches)) return [];
-        return rawMatches.map((match: any) => ({
-            ...match,
-            team1: teams.find(t => t.id === match.team1Id),
-            team2: teams.find(t => t.id === match.team2Id),
-        })).filter((m: any) => m.team1 && m.team2);
-    }
-    
-    // if no matches stored, return defaults only if teams are default
-    const storedTeams = window.localStorage.getItem('ligamanager-teams');
-    if (!storedTeams) {
-        return getDefaultMatches(teams);
-    }
-    return [];
-}
-
-export function updateMatch(updatedMatch: Match): void {
-    const allMatches = getMatches();
-    const index = allMatches.findIndex((m) => m.id === updatedMatch.id);
-    if (index !== -1) {
-        allMatches[index] = updatedMatch;
-        setMatches(allMatches);
+    // Add new
+    if (newMatches.length > 0) {
+      const addBatch = writeBatch(firestore);
+      newMatches.forEach(match => {
+          const { team1, team2, ...rest } = match;
+          const storableMatch: StoredMatch = {
+              ...rest,
+              id: match.id,
+              team1Id: team1.id,
+              team2Id: team2.id,
+          };
+          const newMatchRef = doc(matchesCollection, match.id);
+          addBatch.set(newMatchRef, storableMatch);
+      });
+      await addBatch.commit();
     }
 }
 
-export function setMatches(newMatches: Match[]): void {
-    if (typeof window === 'undefined') return;
-    // When saving, just store team IDs
-    const storableMatches = newMatches.map(m => ({
-        id: m.id,
-        team1Id: m.team1.id,
-        team2Id: m.team2.id,
-        score1: m.score1,
-        score2: m.score2,
-        date: m.date,
-        status: m.status
-    }));
-    window.localStorage.setItem('ligamanager-matches', JSON.stringify(storableMatches));
-    dispatchStorageEvent();
+export async function clearAllMatches(firestore: Firestore): Promise<void> {
+  const matchesCollection = collection(firestore, 'leagues', LEAGUE_ID, 'matches');
+  const allMatchesSnap = await getDocs(matchesCollection);
+  const batch = writeBatch(firestore);
+  allMatchesSnap.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
 }
+
 
 export function calculateStandings(teams: Team[], matches: Match[]): Standing[] {
   const stats: { [key: string]: Omit<Standing, 'team' | 'rank'> } = {};

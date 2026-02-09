@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { getTeams } from '@/lib/data';
 import type { Team } from '@/lib/types';
 import {
   Card,
@@ -11,21 +10,20 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { LEAGUE_ID } from '@/lib/data';
 
 export default function TeamsPage() {
-  const [teams, setTeams] = React.useState<Team[]>([]);
+  const firestore = useFirestore();
 
-  const refreshData = React.useCallback(() => {
-    setTeams(getTeams());
-  }, []);
+  const participantsRef = useMemoFirebase(
+    () => collection(firestore, 'leagues', LEAGUE_ID, 'participants'),
+    [firestore]
+  );
+  
+  const { data: teams, isLoading } = useCollection<Omit<Team, 'id'>>(participantsRef);
 
-  React.useEffect(() => {
-    refreshData();
-    window.addEventListener('storage', refreshData);
-    return () => {
-      window.removeEventListener('storage', refreshData);
-    };
-  }, [refreshData]);
 
   return (
     <div className="flex-1 p-4 md:p-8">
@@ -37,8 +35,9 @@ export default function TeamsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {teams.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {isLoading && <p>Loading teams...</p>}
+          {teams && teams.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {teams.map((team) => (
                 <Card key={team.id} className="text-center">
                   <CardContent className="p-4 flex flex-col items-center justify-center gap-3">
@@ -56,9 +55,11 @@ export default function TeamsPage() {
               ))}
             </div>
           ) : (
+            !isLoading && (
             <div className="text-center p-8 text-muted-foreground">
               No teams found. You can add teams via the Import page.
             </div>
+            )
           )}
         </CardContent>
       </Card>

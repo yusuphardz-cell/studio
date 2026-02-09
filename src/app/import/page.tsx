@@ -26,14 +26,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useFirestore } from '@/firebase';
 
 export default function ImportPage() {
   const { toast } = useToast();
+  const firestore = useFirestore();
   const [file, setFile] = React.useState<File | null>(null);
-  const [status, setStatus] = React.useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = React.useState<'idle' | 'success' | 'error'>(
+    'idle'
+  );
   const [message, setMessage] = React.useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -42,7 +45,7 @@ export default function ImportPage() {
     }
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!file) {
       toast({
         title: 'No file selected',
@@ -53,59 +56,65 @@ export default function ImportPage() {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const text = e.target?.result;
       if (typeof text !== 'string') {
         setStatus('error');
         setMessage('Could not read file.');
         return;
       }
-      
+
       try {
-        const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+        const lines = text.split(/\r\n|\n/).filter((line) => line.trim() !== '');
         if (lines.length < 2) {
-            setStatus('error');
-            setMessage('CSV file must contain a header and at least one team name.');
-            return;
+          setStatus('error');
+          setMessage(
+            'CSV file must contain a header and at least one team name.'
+          );
+          return;
         }
 
         const header = lines[0].trim().toLowerCase();
         if (header !== 'name') {
-            setStatus('error');
-            setMessage('Invalid CSV format. The first line must be a header with a single column: "name".');
-            return;
+          setStatus('error');
+          setMessage(
+            'Invalid CSV format. The first line must be a header with a single column: "name".'
+          );
+          return;
         }
-        
-        const teamNamesFromFile = lines.slice(1).map(line => line.trim()).filter(Boolean);
+
+        const teamNamesFromFile = lines
+          .slice(1)
+          .map((line) => line.trim())
+          .filter(Boolean);
 
         if (teamNamesFromFile.length === 0) {
-            setStatus('error');
-            setMessage('No team names found in the file.');
-            return;
+          setStatus('error');
+          setMessage('No team names found in the file.');
+          return;
         }
 
         const newTeams: Team[] = teamNamesFromFile.map((name, index) => {
-            const id = `team-${Date.now()}-${index}`;
-            return {
-                id,
-                name,
-                logoUrl: `https://picsum.photos/seed/${id}/200/200`,
-                dataAiHint: name.split(' ')[0].toLowerCase()
-            };
+          const id = `team-${Date.now()}-${index}`;
+          return {
+            id,
+            name,
+            logoUrl: `https://picsum.photos/seed/${id}/200/200`,
+            dataAiHint: name.split(' ')[0].toLowerCase(),
+          };
         });
 
-        saveTeams(newTeams);
-        setMatches([]); // Clear existing matches as they are now invalid
-        
+        await saveTeams(firestore, newTeams);
+        await setMatches(firestore, []); // Clear existing matches as they are now invalid
+
         const successMsg = `${newTeams.length} teams imported, replacing all previous data. Existing matches have been cleared.`;
-        
+
         setStatus('success');
         setMessage(successMsg);
         toast({
-            title: 'Import Successful',
-            description: successMsg,
+          title: 'Import Successful',
+          description: successMsg,
         });
-
       } catch (err) {
         setStatus('error');
         setMessage('An error occurred while parsing the file.');
@@ -113,28 +122,28 @@ export default function ImportPage() {
       }
     };
     reader.onerror = () => {
-        setStatus('error');
-        setMessage('Failed to read file.');
-    }
+      setStatus('error');
+      setMessage('Failed to read file.');
+    };
 
     reader.readAsText(file);
-    
+
     // Reset file input
     if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      fileInputRef.current.value = '';
     }
     setFile(null);
   };
-  
+
   const handleDownloadTemplate = () => {
     const headers = ['name'];
     const exampleRow = ['New Team FC'];
     const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "teams_template.csv");
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'teams_template.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -147,7 +156,8 @@ export default function ImportPage() {
         <CardHeader>
           <CardTitle>Import Teams</CardTitle>
           <CardDescription>
-            Upload a CSV file with team names to add them in bulk. This will replace all existing teams and matches.
+            Upload a CSV file with team names to add them in bulk. This will
+            replace all existing teams and matches.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -155,22 +165,35 @@ export default function ImportPage() {
             <div>
               <h4 className="font-semibold">CSV Format Instructions</h4>
               <p className="text-sm text-muted-foreground">
-                Your CSV file must have a header row with a single column: <code>name</code>.
+                Your CSV file must have a header row with a single column:{' '}
+                <code>name</code>.
               </p>
               <p className="text-sm text-muted-foreground">
                 Example row: <code>New Team FC</code>
               </p>
             </div>
-            <Button variant="outline" onClick={handleDownloadTemplate} className="w-full md:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Download Template
+            <Button
+              variant="outline"
+              onClick={handleDownloadTemplate}
+              className="w-full md:w-auto"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download Template
             </Button>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="csv-upload" className="font-medium text-sm">Upload CSV File</label>
+            <label htmlFor="csv-upload" className="font-medium text-sm">
+              Upload CSV File
+            </label>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Input id="csv-upload" type="file" accept=".csv" onChange={handleFileChange} ref={fileInputRef} />
+              <Input
+                id="csv-upload"
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button disabled={!file}>
@@ -182,12 +205,15 @@ export default function ImportPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action will replace all existing teams and matches. This cannot be undone.
+                      This action will replace all existing teams and matches.
+                      This cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleImport}>Continue</AlertDialogAction>
+                    <AlertDialogAction onClick={handleImport}>
+                      Continue
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -196,7 +222,11 @@ export default function ImportPage() {
 
           {status !== 'idle' && (
             <Alert variant={status === 'error' ? 'destructive' : 'default'}>
-                {status === 'success' ? <FileCheck2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+              {status === 'success' ? (
+                <FileCheck2 className="h-4 w-4" />
+              ) : (
+                <AlertCircle className="h-4 w-4" />
+              )}
               <AlertTitle>
                 {status === 'success' ? 'Import Complete' : 'Import Failed'}
               </AlertTitle>

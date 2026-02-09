@@ -26,34 +26,53 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { calculateStandings, getMatches, getTeams } from '@/lib/data';
-import type { Team, Match, Standing } from '@/lib/types';
+import { calculateStandings, LEAGUE_ID } from '@/lib/data';
+import type { Team, Match, Standing, StoredMatch } from '@/lib/types';
 import { format } from 'date-fns';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function DashboardPage() {
-  const [teams, setTeams] = React.useState<Team[]>([]);
-  const [matches, setMatches] = React.useState<Match[]>([]);
-  const [standings, setStandings] = React.useState<Standing[]>([]);
+  const firestore = useFirestore();
 
-  const refreshData = React.useCallback(() => {
-    const currentTeams = getTeams();
-    const currentMatches = getMatches();
-    const currentStandings = calculateStandings(currentTeams, currentMatches);
-    setTeams(currentTeams);
-    setMatches(currentMatches);
-    setStandings(currentStandings);
-  }, []);
+  const participantsRef = useMemoFirebase(
+    () => collection(firestore, 'leagues', LEAGUE_ID, 'participants'),
+    [firestore]
+  );
+  const { data: teams, isLoading: teamsLoading } = useCollection<Omit<Team, 'id'>>(participantsRef);
+  
+  const matchesRef = useMemoFirebase(
+    () => collection(firestore, 'leagues', LEAGUE_ID, 'matches'),
+    [firestore]
+  );
+  const { data: storedMatches, isLoading: matchesLoading } = useCollection<Omit<StoredMatch, 'id'>>(matchesRef);
 
-  React.useEffect(() => {
-    refreshData();
-    window.addEventListener('storage', refreshData);
-    return () => {
-      window.removeEventListener('storage', refreshData);
-    };
-  }, [refreshData]);
+  const matches = React.useMemo((): Match[] | null => {
+    if (!storedMatches || !teams) return null;
+    const teamsMap = new Map(teams.map(t => [t.id, t]));
+    return storedMatches.map(sm => {
+      const team1 = teamsMap.get(sm.team1Id);
+      const team2 = teamsMap.get(sm.team2Id);
+      if (!team1 || !team2) return null;
+      const { team1Id, team2Id, ...rest } = sm;
+      return { ...rest, id: sm.id, team1, team2 };
+    }).filter((m): m is Match => m !== null);
+  }, [storedMatches, teams]);
+
+
+  const standings = React.useMemo(() => {
+    if (!teams || !matches) return [];
+    return calculateStandings(teams, matches);
+  }, [teams, matches]);
 
   const topTeams = standings.slice(0, 3);
-  const nextMatch = matches.find((m) => m.status === 'upcoming');
+  const nextMatch = matches?.find((m) => m.status === 'upcoming');
+
+  const isLoading = teamsLoading || matchesLoading;
+
+  if (isLoading) {
+    return <div className="p-8">Loading dashboard...</div>
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -91,7 +110,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teams.length}</div>
+            <div className="text-2xl font-bold">{teams?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
               Participating in this league
             </p>
@@ -106,10 +125,10 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {matches.filter((m) => m.status === 'played').length}
+              {matches?.filter((m) => m.status === 'played').length || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              out of {matches.length} total
+              out of {matches?.length || 0} total
             </p>
           </CardContent>
         </Card>
