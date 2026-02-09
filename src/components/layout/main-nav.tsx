@@ -20,9 +20,8 @@ import {
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/standings', label: 'Standings', icon: Trophy },
+  { href: '/teams', label: 'Standings', icon: Trophy },
   { href: '/matches', label: 'Matches', icon: Swords },
-  { href: '/teams', label: 'Teams', icon: Users },
   { href: '/import', label: 'Import', icon: Upload },
   { href: '/report', label: 'Report', icon: FileText },
 ];
