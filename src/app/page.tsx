@@ -166,6 +166,7 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Team</TableHead>
+                  <TableHead className="text-center">P</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">W</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">L</TableHead>
                   <TableHead className="text-right">Points</TableHead>
@@ -188,6 +189,7 @@ export default function DashboardPage() {
                         <div className="font-medium break-words">{standing.team.name}</div>
                       </div>
                     </TableCell>
+                    <TableCell className="text-center">{standing.played}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">{standing.win}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">{standing.loss}</TableCell>
                     <TableCell className="text-right">

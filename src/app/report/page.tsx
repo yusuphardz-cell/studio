@@ -149,6 +149,16 @@ export default function ReportPage() {
                     </Tooltip>
                   </TableHead>
                   <TableHead>Team</TableHead>
+                  <TableHead className="text-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help border-b border-dashed">
+                          P
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>Pertandingan Dimainkan</TooltipContent>
+                    </Tooltip>
+                  </TableHead>
                   <TableHead className="text-center hidden sm:table-cell">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -198,6 +208,7 @@ export default function ReportPage() {
                         <span className="font-medium break-words">{s.team.name}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-center">{s.played}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">{s.win}</TableCell>
                     <TableCell className="text-center hidden sm:table-cell">{s.loss}</TableCell>
                     <TableCell className="text-right font-bold">
