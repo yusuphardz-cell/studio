@@ -119,9 +119,9 @@ export default function ReportPage() {
       <Card ref={reportCardRef}>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Standings Report</CardTitle>
+            <CardTitle>History Standings Report</CardTitle>
             <CardDescription>
-              A downloadable report of the official standings for the 2026 season.
+              A downloadable report of the official standings, showing top player ranks.
             </CardDescription>
           </div>
           <Button
