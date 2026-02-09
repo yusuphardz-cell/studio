@@ -585,13 +585,17 @@ const SidebarMenuButton = React.forwardRef<
       }
     }
 
+    // Tooltips should only be shown when the sidebar is collapsed and not on a mobile device.
+    if (state !== "collapsed" || isMobile) {
+      return button
+    }
+
     return (
       <Tooltip>
         <TooltipTrigger asChild>{button}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
-          hidden={state !== "collapsed" || isMobile}
           {...tooltip}
         />
       </Tooltip>
