@@ -15,7 +15,17 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
 import { saveTeams, setMatches } from '@/lib/data';
 import type { Team } from '@/lib/types';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function ImportPage() {
   const { toast } = useToast();
@@ -161,10 +171,26 @@ export default function ImportPage() {
             <label htmlFor="csv-upload" className="font-medium text-sm">Upload CSV File</label>
             <div className="flex flex-col sm:flex-row gap-2">
               <Input id="csv-upload" type="file" accept=".csv" onChange={handleFileChange} ref={fileInputRef} />
-              <Button onClick={handleImport} disabled={!file}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={!file}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action will replace all existing teams and matches. This cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleImport}>Continue</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
 

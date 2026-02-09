@@ -19,6 +19,17 @@ import { MatchScoreDialog } from '@/components/match-score-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 function MatchCard({ match, onRecordScore }: { match: Match; onRecordScore: (match: Match) => void; }) {
   return (
@@ -133,10 +144,26 @@ function MatchGenerator({ onGenerate }: { onGenerate: (matches: Match[]) => void
                         <Label htmlFor="round-robin">Round Robin</Label>
                     </div>
                 </RadioGroup>
-                <Button onClick={handleGenerate}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate New Matches
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate New Matches
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will replace all existing upcoming matches with a new schedule. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleGenerate}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
             </CardContent>
         </Card>
     )
