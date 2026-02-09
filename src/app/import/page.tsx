@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import * as XLSX from 'xlsx';
 import {
   Card,
   CardContent,
@@ -49,52 +50,21 @@ export default function ImportPage() {
     if (!file) {
       toast({
         title: 'No file selected',
-        description: 'Please select a CSV file to import.',
+        description: 'Please select a CSV or Excel file to import.',
         variant: 'destructive',
       });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target?.result;
-      if (typeof text !== 'string') {
+    const processTeamNames = async (teamNames: string[]) => {
+      if (!teamNames || teamNames.length === 0) {
         setStatus('error');
-        setMessage('Could not read file.');
+        setMessage('No team names found in the file.');
         return;
       }
 
       try {
-        const lines = text.split(/\r\n|\n/).filter((line) => line.trim() !== '');
-        if (lines.length < 2) {
-          setStatus('error');
-          setMessage(
-            'CSV file must contain a header and at least one team name.'
-          );
-          return;
-        }
-
-        const header = lines[0].trim().toLowerCase();
-        if (header !== 'name') {
-          setStatus('error');
-          setMessage(
-            'Invalid CSV format. The first line must be a header with a single column: "name".'
-          );
-          return;
-        }
-
-        const teamNamesFromFile = lines
-          .slice(1)
-          .map((line) => line.trim())
-          .filter(Boolean);
-
-        if (teamNamesFromFile.length === 0) {
-          setStatus('error');
-          setMessage('No team names found in the file.');
-          return;
-        }
-
-        const newTeams: Team[] = teamNamesFromFile.map((name, index) => {
+        const newTeams: Team[] = teamNames.map((name, index) => {
           const id = `team-${Date.now()}-${index}`;
           return {
             id,
@@ -105,10 +75,9 @@ export default function ImportPage() {
         });
 
         await saveTeams(firestore, newTeams);
-        await setMatches(firestore, []); // Clear existing matches as they are now invalid
+        await setMatches(firestore, []);
 
         const successMsg = `${newTeams.length} teams imported, replacing all previous data. Existing matches have been cleared.`;
-
         setStatus('success');
         setMessage(successMsg);
         toast({
@@ -117,29 +86,108 @@ export default function ImportPage() {
         });
       } catch (err) {
         setStatus('error');
-        setMessage('An error occurred while parsing the file.');
+        setMessage('An error occurred while saving the data.');
         console.error(err);
+      } finally {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        setFile(null);
       }
     };
+
+    const reader = new FileReader();
+
     reader.onerror = () => {
       setStatus('error');
       setMessage('Failed to read file.');
     };
 
-    reader.readAsText(file);
+    if (file.name.endsWith('.csv')) {
+      reader.onload = async (e) => {
+        const text = e.target?.result as string;
+        try {
+          const lines = text
+            .split(/\r\n|\n/)
+            .filter((line) => line.trim() !== '');
+          if (lines.length < 2) {
+            throw new Error(
+              'File must contain a header and at least one team name.'
+            );
+          }
+          const header = lines[0].trim().toLowerCase();
+          if (header !== 'name') {
+            throw new Error(
+              'Invalid format. The first column header must be "name".'
+            );
+          }
+          const teamNames = lines
+            .slice(1)
+            .map((line) => line.trim())
+            .filter(Boolean);
+          await processTeamNames(teamNames);
+        } catch (err: any) {
+          setStatus('error');
+          setMessage(
+            err.message || 'An error occurred while parsing the CSV file.'
+          );
+        }
+      };
+      reader.readAsText(file);
+    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      reader.onload = async (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const json = XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
+          }) as string[][];
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+          if (json.length < 2 || !json[0] || json[0].length === 0) {
+            throw new Error(
+              'File must contain a header and at least one team name.'
+            );
+          }
+          const header = String(json[0][0]).trim().toLowerCase();
+          if (header !== 'name') {
+            throw new Error(
+              'Invalid format. The first column header must be "name".'
+            );
+          }
+          const teamNames = json
+            .slice(1)
+            .map((row) => row[0] && String(row[0]).trim())
+            .filter(Boolean);
+          await processTeamNames(teamNames);
+        } catch (err: any) {
+          setStatus('error');
+          setMessage(
+            err.message || 'An error occurred while parsing the Excel file.'
+          );
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      toast({
+        title: 'Unsupported file type',
+        description: 'Please upload a CSV or Excel (.xls, .xlsx) file.',
+        variant: 'destructive',
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setFile(null);
+      return;
     }
-    setFile(null);
   };
 
   const handleDownloadTemplate = () => {
     const headers = ['name'];
     const exampleRow = ['New Team FC'];
     const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-f8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
@@ -156,20 +204,21 @@ export default function ImportPage() {
         <CardHeader>
           <CardTitle>Import Teams</CardTitle>
           <CardDescription>
-            Upload a CSV file with team names to add them in bulk. This will
-            replace all existing teams and matches.
+            Upload a CSV or Excel file with team names to add them in bulk.
+            This will replace all existing teams and matches.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4 md:space-y-2 p-4 border rounded-lg flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
-              <h4 className="font-semibold">CSV Format Instructions</h4>
+              <h4 className="font-semibold">File Format Instructions</h4>
               <p className="text-sm text-muted-foreground">
-                Your CSV file must have a header row with a single column:{' '}
-                <code>name</code>.
+                Your CSV or Excel file must have a header row where the first
+                column is titled <code>name</code>. Each subsequent row should
+                contain a single team name in that first column.
               </p>
               <p className="text-sm text-muted-foreground">
-                Example row: <code>New Team FC</code>
+                Only data in the first column will be imported.
               </p>
             </div>
             <Button
@@ -178,19 +227,19 @@ export default function ImportPage() {
               className="w-full md:w-auto"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download Template
+              Download CSV Template
             </Button>
           </div>
 
           <div className="space-y-2">
             <label htmlFor="csv-upload" className="font-medium text-sm">
-              Upload CSV File
+              Upload CSV or Excel File
             </label>
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 id="csv-upload"
                 type="file"
-                accept=".csv"
+                accept=".csv,.xls,.xlsx"
                 onChange={handleFileChange}
                 ref={fileInputRef}
               />
