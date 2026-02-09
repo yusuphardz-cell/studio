@@ -84,16 +84,6 @@ export default function StandingsPage() {
                   </Tooltip>
                 </TableHead>
                 <TableHead>Team</TableHead>
-                <TableHead className="hidden text-center md:table-cell">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help border-b border-dashed">
-                        Played
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Pertandingan Dimainkan</TooltipContent>
-                  </Tooltip>
-                </TableHead>
                 <TableHead className="text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -104,17 +94,7 @@ export default function StandingsPage() {
                     <TooltipContent>Menang</TooltipContent>
                   </Tooltip>
                 </TableHead>
-                <TableHead className="hidden text-center md:table-cell">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help border-b border-dashed">
-                        D
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Seri</TooltipContent>
-                  </Tooltip>
-                </TableHead>
-                <TableHead className="hidden text-center md:table-cell">
+                <TableHead className="text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="cursor-help border-b border-dashed">
@@ -122,36 +102,6 @@ export default function StandingsPage() {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>Kalah</TooltipContent>
-                  </Tooltip>
-                </TableHead>
-                <TableHead className="hidden text-center md:table-cell">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help border-b border-dashed">
-                        GF
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Gol Memasukkan</TooltipContent>
-                  </Tooltip>
-                </TableHead>
-                <TableHead className="hidden text-center md:table-cell">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help border-b border-dashed">
-                        GA
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Gol Kemasukan</TooltipContent>
-                  </Tooltip>
-                </TableHead>
-                <TableHead className="hidden text-center md:table-cell">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help border-b border-dashed">
-                        GD
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>Selisih Gol</TooltipContent>
                   </Tooltip>
                 </TableHead>
                 <TableHead className="text-right">
@@ -183,13 +133,8 @@ export default function StandingsPage() {
                       <span className="font-medium break-words">{s.team.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.played}</TableCell>
                   <TableCell className="text-center">{s.win}</TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.draw}</TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.loss}</TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.goalsFor}</TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.goalsAgainst}</TableCell>
-                  <TableCell className="hidden text-center md:table-cell">{s.goalDifference}</TableCell>
+                  <TableCell className="text-center">{s.loss}</TableCell>
                   <TableCell className="text-right font-bold">
                     {s.points}
                   </TableCell>
