@@ -155,7 +155,7 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
             <Button asChild size="sm" className="ml-auto gap-1">
-              <Link href="/standings">
+              <Link href="/teams">
                 View All
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -166,8 +166,8 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Team</TableHead>
-                  <TableHead className="text-center">Wins</TableHead>
-                  <TableHead className="text-center">Loss</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">W</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">L</TableHead>
                   <TableHead className="text-right">Points</TableHead>
                 </TableRow>
               </TableHeader>
@@ -188,8 +188,8 @@ export default function DashboardPage() {
                         <div className="font-medium break-words">{standing.team.name}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">{standing.win}</TableCell>
-                    <TableCell className="text-center">{standing.loss}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{standing.win}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{standing.loss}</TableCell>
                     <TableCell className="text-right">
                       {standing.points}
                     </TableCell>

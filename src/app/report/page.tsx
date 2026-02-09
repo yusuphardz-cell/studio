@@ -149,7 +149,7 @@ export default function ReportPage() {
                     </Tooltip>
                   </TableHead>
                   <TableHead>Team</TableHead>
-                  <TableHead className="text-center">
+                  <TableHead className="text-center hidden sm:table-cell">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="cursor-help border-b border-dashed">
@@ -159,7 +159,7 @@ export default function ReportPage() {
                       <TooltipContent>Menang</TooltipContent>
                     </Tooltip>
                   </TableHead>
-                  <TableHead className="text-center">
+                  <TableHead className="text-center hidden sm:table-cell">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="cursor-help border-b border-dashed">
@@ -198,8 +198,8 @@ export default function ReportPage() {
                         <span className="font-medium break-words">{s.team.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">{s.win}</TableCell>
-                    <TableCell className="text-center">{s.loss}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{s.win}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{s.loss}</TableCell>
                     <TableCell className="text-right font-bold">
                       {s.points}
                     </TableCell>
