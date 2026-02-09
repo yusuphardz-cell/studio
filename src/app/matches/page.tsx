@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   updateMatch as saveMatch,
   setMatches as saveAllMatches,
-  LEAGUE_ID
+  LEAGUE_ID,
 } from '@/lib/data';
 import type { Team, Match, StoredMatch } from '@/lib/types';
 import {
@@ -36,6 +36,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 function MatchCard({
   match,
@@ -94,99 +97,204 @@ function MatchCard({
   );
 }
 
-function MatchGenerator({ teams, onGenerate }: { teams: Team[] | null; onGenerate: (matches: Match[]) => void; }) {
-    const { toast } = useToast();
-    const [generationType, setGenerationType] = React.useState<'bracket' | 'round-robin'>('bracket');
+function MatchGenerator({
+  teams,
+  onGenerate,
+}: {
+  teams: Team[] | null;
+  onGenerate: (matches: Match[]) => void;
+}) {
+  const { toast } = useToast();
+  const [generationType, setGenerationType] = React.useState<
+    'bracket' | 'round-robin'
+  >('bracket');
+  const [selectedTeamIds, setSelectedTeamIds] = React.useState<string[]>([]);
 
-    const handleGenerate = () => {
-        if (!teams || teams.length < 2) {
-            toast({
-                title: "Not enough teams",
-                description: "You need at least 2 teams to generate matches.",
-                variant: "destructive",
-            });
-            return;
-        }
+  React.useEffect(() => {
+    if (teams) {
+      setSelectedTeamIds(teams.map((t) => t.id));
+    }
+  }, [teams]);
 
-        let newMatches: Match[] = [];
-        if (generationType === 'bracket') {
-            const shuffled = [...teams].sort(() => 0.5 - Math.random());
-            for (let i = 0; i < shuffled.length; i += 2) {
-                if (shuffled[i+1]) {
-                    newMatches.push({
-                        id: `match-${Date.now()}-${i/2}`,
-                        team1: shuffled[i],
-                        team2: shuffled[i+1],
-                        score1: null,
-                        score2: null,
-                        date: new Date().toISOString(),
-                        status: 'upcoming',
-                    });
-                }
-            }
-        } else { // round-robin
-            for (let i = 0; i < teams.length; i++) {
-                for (let j = i + 1; j < teams.length; j++) {
-                    newMatches.push({
-                        id: `match-${Date.now()}-${i}-${j}`,
-                        team1: teams[i],
-                        team2: teams[j],
-                        score1: null,
-                        score2: null,
-                        date: new Date().toISOString(),
-                        status: 'upcoming',
-                    });
-                }
-            }
-        }
+  const handleTeamSelectionChange = (teamId: string) => {
+    setSelectedTeamIds((prev) =>
+      prev.includes(teamId)
+        ? prev.filter((id) => id !== teamId)
+        : [...prev, teamId]
+    );
+  };
 
-        onGenerate(newMatches);
-        toast({
-            title: "Matches Generated!",
-            description: `A new ${generationType} schedule has been created with ${newMatches.length} matches.`,
-        });
+  const handleSelectAll = (select: boolean) => {
+    if (teams) {
+      setSelectedTeamIds(select ? teams.map((t) => t.id) : []);
+    }
+  };
+
+  const handleGenerate = () => {
+    if (!teams) return;
+
+    const selectedTeams = teams.filter((t) => selectedTeamIds.includes(t.id));
+
+    if (selectedTeams.length < 2) {
+      toast({
+        title: 'Not enough teams selected',
+        description: 'You need to select at least 2 teams to generate matches.',
+        variant: 'destructive',
+      });
+      return;
     }
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Generate Matches</CardTitle>
-                <CardDescription>Create pairings for a new tournament. This will replace all existing upcoming matches.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <RadioGroup value={generationType} onValueChange={(value) => setGenerationType(value as 'bracket' | 'round-robin')} className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="bracket" id="bracket" />
-                        <Label htmlFor="bracket">Bracket</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="round-robin" id="round-robin" />
-                        <Label htmlFor="round-robin">Round Robin</Label>
-                    </div>
-                </RadioGroup>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Generate New Matches
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This will replace all existing upcoming matches with a new schedule. This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleGenerate}>Continue</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-            </CardContent>
-        </Card>
-    )
+    let newMatches: Match[] = [];
+    if (generationType === 'bracket') {
+      const shuffled = [...selectedTeams].sort(() => 0.5 - Math.random());
+      for (let i = 0; i < shuffled.length; i += 2) {
+        if (shuffled[i + 1]) {
+          newMatches.push({
+            id: `match-${Date.now()}-${i / 2}`,
+            team1: shuffled[i],
+            team2: shuffled[i + 1],
+            score1: null,
+            score2: null,
+            date: new Date().toISOString(),
+            status: 'upcoming',
+          });
+        }
+      }
+    } else {
+      // round-robin
+      for (let i = 0; i < selectedTeams.length; i++) {
+        for (let j = i + 1; j < selectedTeams.length; j++) {
+          newMatches.push({
+            id: `match-${Date.now()}-${i}-${j}`,
+            team1: selectedTeams[i],
+            team2: selectedTeams[j],
+            score1: null,
+            score2: null,
+            date: new Date().toISOString(),
+            status: 'upcoming',
+          });
+        }
+      }
+    }
+
+    onGenerate(newMatches);
+    toast({
+      title: 'Matches Generated!',
+      description: `A new ${generationType} schedule has been created with ${newMatches.length} matches.`,
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Generate Matches</CardTitle>
+        <CardDescription>
+          Select teams and a format to create a new schedule. This will replace
+          all existing upcoming matches.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <h4 className="font-medium text-sm mb-2">Match Format</h4>
+          <RadioGroup
+            value={generationType}
+            onValueChange={(value) =>
+              setGenerationType(value as 'bracket' | 'round-robin')
+            }
+            className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="bracket" id="bracket" />
+              <Label htmlFor="bracket">Single Elimination Bracket</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="round-robin" id="round-robin" />
+              <Label htmlFor="round-robin">Round Robin</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <Separator />
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-medium text-sm">
+              Select Teams ({selectedTeamIds.length} / {teams?.length || 0})
+            </h4>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="link"
+                className="p-0 h-auto"
+                onClick={() => handleSelectAll(true)}
+              >
+                Select All
+              </Button>
+              <Separator orientation="vertical" className="h-4" />
+              <Button
+                variant="link"
+                className="p-0 h-auto"
+                onClick={() => handleSelectAll(false)}
+              >
+                Deselect All
+              </Button>
+            </div>
+          </div>
+
+          <ScrollArea className="h-48 rounded-md border p-2">
+            <div className="space-y-2">
+              {teams && teams.length > 0 ? (
+                teams.map((team) => (
+                  <div key={team.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`team-${team.id}`}
+                      checked={selectedTeamIds.includes(team.id)}
+                      onCheckedChange={() => handleTeamSelectionChange(team.id)}
+                    />
+                    <Label
+                      htmlFor={`team-${team.id}`}
+                      className="font-normal flex-1 cursor-pointer"
+                    >
+                      {team.name}
+                    </Label>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center p-4">
+                  No teams available. Import teams to get started.
+                </p>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+
+        <Separator />
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button disabled={selectedTeamIds.length < 2}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Generate New Matches
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will replace all existing upcoming matches with a new
+                schedule. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleGenerate}>
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function MatchesPage() {
@@ -199,28 +307,36 @@ export default function MatchesPage() {
     () => collection(firestore, 'leagues', LEAGUE_ID, 'participants'),
     [firestore]
   );
-  const { data: teams, isLoading: teamsLoading } = useCollection<Omit<Team, 'id'>>(participantsRef);
-  
+  const { data: teams, isLoading: teamsLoading } =
+    useCollection<Omit<Team, 'id'>>(participantsRef);
+
   const matchesRef = useMemoFirebase(
     () => collection(firestore, 'leagues', LEAGUE_ID, 'matches'),
     [firestore]
   );
-  const { data: storedMatches, isLoading: matchesLoading } = useCollection<Omit<StoredMatch, 'id'>>(matchesRef);
+  const { data: storedMatches, isLoading: matchesLoading } =
+    useCollection<Omit<StoredMatch, 'id'>>(matchesRef);
 
   const matches = React.useMemo((): Match[] | null => {
     if (!storedMatches || !teams) return null;
-    const teamsMap = new Map(teams.map(t => [t.id, t]));
-    return storedMatches.map(sm => {
-      const team1 = teamsMap.get(sm.team1Id);
-      const team2 = teamsMap.get(sm.team2Id);
-      if (!team1 || !team2) return null;
-      const { team1Id, team2Id, ...rest } = sm;
-      return { ...rest, id: sm.id, team1, team2 };
-    }).filter((m): m is Match => m !== null);
+    const teamsMap = new Map(teams.map((t) => [t.id, t]));
+    return storedMatches
+      .map((sm) => {
+        const team1 = teamsMap.get(sm.team1Id);
+        const team2 = teamsMap.get(sm.team2Id);
+        if (!team1 || !team2) return null;
+        const { team1Id, team2Id, ...rest } = sm;
+        return { ...rest, id: sm.id, team1, team2 };
+      })
+      .filter((m): m is Match => m !== null);
   }, [storedMatches, teams]);
 
-  const upcomingMatches = matches ? matches.filter((m) => m.status === 'upcoming') : [];
-  const playedMatches = matches ? matches.filter((m) => m.status === 'played') : [];
+  const upcomingMatches = matches
+    ? matches.filter((m) => m.status === 'upcoming')
+    : [];
+  const playedMatches = matches
+    ? matches.filter((m) => m.status === 'played')
+    : [];
   const isLoading = teamsLoading || matchesLoading;
 
   const handleRecordScore = (match: Match) => {
@@ -233,26 +349,30 @@ export default function MatchesPage() {
     saveMatch(firestore, updatedMatch);
     setDialogOpen(false);
     toast({
-        title: "Score Recorded",
-        description: `${match.team1.name} ${score1} - ${score2} ${match.team2.name}`,
+      title: 'Score Recorded',
+      description: `${match.team1.name} ${score1} - ${score2} ${match.team2.name}`,
     });
   };
 
   const handleGenerateBracket = (newMatches: Match[]) => {
     saveAllMatches(firestore, newMatches);
-  }
+  };
 
   return (
     <div className="flex-1 p-4 md:p-8 space-y-8">
-        <MatchGenerator teams={teams} onGenerate={handleGenerateBracket} />
+      <MatchGenerator teams={teams} onGenerate={handleGenerateBracket} />
 
       <Card>
         <CardHeader>
           <CardTitle>Matches</CardTitle>
-          <CardDescription>View upcoming matches and past results.</CardDescription>
+          <CardDescription>
+            View upcoming matches and past results.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? <p>Loading matches...</p> : (
+          {isLoading ? (
+            <p>Loading matches...</p>
+          ) : (
             <Tabs defaultValue="upcoming">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
@@ -262,15 +382,22 @@ export default function MatchesPage() {
                 {upcomingMatches.length > 0 ? (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {upcomingMatches.map((match) => (
-                      <MatchCard key={match.id} match={match} onRecordScore={handleRecordScore} />
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        onRecordScore={handleRecordScore}
+                      />
                     ))}
                   </div>
                 ) : (
                   <div className="text-center p-8 border-dashed border-2 rounded-lg">
                     <Calendar className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">No Upcoming Matches</h3>
+                    <h3 className="mt-4 text-lg font-semibold">
+                      No Upcoming Matches
+                    </h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      All matches have been played or a new bracket needs to be generated.
+                      All matches have been played or a new bracket needs to be
+                      generated.
                     </p>
                   </div>
                 )}
@@ -279,13 +406,19 @@ export default function MatchesPage() {
                 {playedMatches.length > 0 ? (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {playedMatches.map((match) => (
-                      <MatchCard key={match.id} match={match} onRecordScore={handleRecordScore} />
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        onRecordScore={handleRecordScore}
+                      />
                     ))}
                   </div>
                 ) : (
                   <div className="text-center p-8 border-dashed border-2 rounded-lg">
                     <Swords className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">No Match History</h3>
+                    <h3 className="mt-4 text-lg font-semibold">
+                      No Match History
+                    </h3>
                     <p className="mt-2 text-sm text-muted-foreground">
                       Results from played matches will appear here.
                     </p>
@@ -296,13 +429,13 @@ export default function MatchesPage() {
           )}
         </CardContent>
       </Card>
-      
+
       {selectedMatch && (
-        <MatchScoreDialog 
-            isOpen={isDialogOpen} 
-            onOpenChange={setDialogOpen}
-            match={selectedMatch}
-            onSave={handleSaveScore}
+        <MatchScoreDialog
+          isOpen={isDialogOpen}
+          onOpenChange={setDialogOpen}
+          match={selectedMatch}
+          onSave={handleSaveScore}
         />
       )}
     </div>
