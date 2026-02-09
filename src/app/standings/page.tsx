@@ -22,6 +22,11 @@ import type { Standing } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { RefreshCw } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function StandingsPage() {
   const [standings, setStandings] = React.useState<Standing[]>([]);
@@ -68,16 +73,97 @@ export default function StandingsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px] text-center">Rank</TableHead>
+                <TableHead className="w-[50px] text-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        Rank
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Peringkat</TooltipContent>
+                  </Tooltip>
+                </TableHead>
                 <TableHead>Team</TableHead>
-                <TableHead className="hidden text-center md:table-cell">Played</TableHead>
-                <TableHead className="text-center">W</TableHead>
-                <TableHead className="hidden text-center md:table-cell">D</TableHead>
-                <TableHead className="hidden text-center md:table-cell">L</TableHead>
-                <TableHead className="hidden text-center md:table-cell">GF</TableHead>
-                <TableHead className="hidden text-center md:table-cell">GA</TableHead>
-                <TableHead className="hidden text-center md:table-cell">GD</TableHead>
-                <TableHead className="text-right">Points</TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        Played
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Pertandingan Dimainkan</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="text-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        W
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Menang</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        D
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Seri</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        L
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Kalah</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        GF
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Gol Memasukkan</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        GA
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Gol Kemasukan</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="hidden text-center md:table-cell">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        GD
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Selisih Gol</TooltipContent>
+                  </Tooltip>
+                </TableHead>
+                <TableHead className="text-right">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help border-b border-dashed">
+                        Points
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Total Poin</TooltipContent>
+                  </Tooltip>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
