@@ -137,8 +137,8 @@ function MatchGenerator({
 
     if (selectedTeams.length < 2) {
       toast({
-        title: 'Not enough teams selected',
-        description: 'You need to select at least 2 teams to generate matches.',
+        title: 'Not enough players selected',
+        description: 'You need to select at least 2 players to generate games.',
         variant: 'destructive',
       });
       return;
@@ -179,23 +179,23 @@ function MatchGenerator({
 
     onGenerate(newMatches);
     toast({
-      title: 'Matches Generated!',
-      description: `A new ${generationType} schedule has been created with ${newMatches.length} matches.`,
+      title: 'Games Generated!',
+      description: `A new ${generationType} schedule has been created with ${newMatches.length} games.`,
     });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Generate Matches</CardTitle>
+        <CardTitle>Generate Games</CardTitle>
         <CardDescription>
-          Select teams and a format to create a new schedule. This will replace
-          all existing upcoming matches.
+          Select players and a format to create a new schedule. This will replace
+          all existing upcoming games.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <h4 className="font-medium text-sm mb-2">Match Format</h4>
+          <h4 className="font-medium text-sm mb-2">Game Format</h4>
           <RadioGroup
             value={generationType}
             onValueChange={(value) =>
@@ -219,7 +219,7 @@ function MatchGenerator({
         <div>
           <div className="flex justify-between items-center mb-2">
             <h4 className="font-medium text-sm">
-              Select Teams ({selectedTeamIds.length} / {teams?.length || 0})
+              Select Players ({selectedTeamIds.length} / {teams?.length || 0})
             </h4>
             <div className="flex items-center space-x-2">
               <Button
@@ -260,7 +260,7 @@ function MatchGenerator({
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground text-center p-4">
-                  No teams available. Import teams to get started.
+                  No players available. Import players to get started.
                 </p>
               )}
             </div>
@@ -273,14 +273,14 @@ function MatchGenerator({
           <AlertDialogTrigger asChild>
             <Button disabled={selectedTeamIds.length < 2}>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate New Matches
+              Generate New Games
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will replace all existing upcoming matches with a new
+                This will replace all existing upcoming games with a new
                 schedule. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -364,14 +364,14 @@ export default function MatchesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Matches</CardTitle>
+          <CardTitle>Games</CardTitle>
           <CardDescription>
-            View upcoming matches and past results.
+            View upcoming games and past results.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p>Loading matches...</p>
+            <p>Loading games...</p>
           ) : (
             <Tabs defaultValue="upcoming">
               <TabsList className="grid w-full grid-cols-2">
@@ -393,10 +393,10 @@ export default function MatchesPage() {
                   <div className="text-center p-8 border-dashed border-2 rounded-lg">
                     <Calendar className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-semibold">
-                      No Upcoming Matches
+                      No Upcoming Games
                     </h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      All matches have been played or a new bracket needs to be
+                      All games have been played or a new bracket needs to be
                       generated.
                     </p>
                   </div>
@@ -417,10 +417,10 @@ export default function MatchesPage() {
                   <div className="text-center p-8 border-dashed border-2 rounded-lg">
                     <Swords className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-semibold">
-                      No Match History
+                      No Game History
                     </h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Results from played matches will appear here.
+                      Results from played games will appear here.
                     </p>
                   </div>
                 )}

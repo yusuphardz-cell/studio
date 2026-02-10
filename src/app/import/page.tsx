@@ -59,7 +59,7 @@ export default function ImportPage() {
     const processTeamNames = async (teamNames: string[]) => {
       if (!teamNames || teamNames.length === 0) {
         setStatus('error');
-        setMessage('No team names found in the file.');
+        setMessage('No player names found in the file.');
         return;
       }
 
@@ -77,7 +77,7 @@ export default function ImportPage() {
         await saveTeams(firestore, newTeams);
         await setMatches(firestore, []);
 
-        const successMsg = `${newTeams.length} teams imported, replacing all previous data. Existing matches have been cleared.`;
+        const successMsg = `${newTeams.length} players imported, replacing all previous data. Existing games have been cleared.`;
         setStatus('success');
         setMessage(successMsg);
         toast({
@@ -112,7 +112,7 @@ export default function ImportPage() {
             .filter((line) => line.trim() !== '');
           if (lines.length < 2) {
             throw new Error(
-              'File must contain a header and at least one team name.'
+              'File must contain a header and at least one player name.'
             );
           }
           const header = lines[0].trim().toLowerCase();
@@ -147,7 +147,7 @@ export default function ImportPage() {
 
           if (json.length < 2 || !json[0] || json[0].length === 0) {
             throw new Error(
-              'File must contain a header and at least one team name.'
+              'File must contain a header and at least one player name.'
             );
           }
           const header = String(json[0][0]).trim().toLowerCase();
@@ -185,13 +185,13 @@ export default function ImportPage() {
 
   const handleDownloadTemplate = () => {
     const headers = ['name'];
-    const exampleRow = ['New Team FC'];
+    const exampleRow = ['John Doe'];
     const csvContent = [headers.join(','), exampleRow.join(',')].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-f8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'teams_template.csv');
+    link.setAttribute('download', 'players_template.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -202,10 +202,10 @@ export default function ImportPage() {
     <div className="flex-1 p-4 md:p-8">
       <Card>
         <CardHeader>
-          <CardTitle>Import Teams</CardTitle>
+          <CardTitle>Import Players</CardTitle>
           <CardDescription>
-            Upload a CSV or Excel file with team names to add them in bulk.
-            This will replace all existing teams and matches.
+            Upload a CSV or Excel file with player names to add them in bulk.
+            This will replace all existing players and games.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -215,7 +215,7 @@ export default function ImportPage() {
               <p className="text-sm text-muted-foreground">
                 Your CSV or Excel file must have a header row where the first
                 column is titled <code>name</code>. Each subsequent row should
-                contain a single team name in that first column.
+                contain a single player name in that first column.
               </p>
               <p className="text-sm text-muted-foreground">
                 Only data in the first column will be imported.
@@ -254,7 +254,7 @@ export default function ImportPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action will replace all existing teams and matches.
+                      This action will replace all existing players and games.
                       This cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

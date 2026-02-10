@@ -82,7 +82,7 @@ export default function TeamsPage() {
     await clearAllMatches(firestore);
     toast({
         title: "Standings Reset",
-        description: "All matches have been cleared and points are reset."
+        description: "All games have been cleared and points are reset."
     });
   };
 
@@ -91,9 +91,9 @@ export default function TeamsPage() {
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Standings</CardTitle>
+            <CardTitle>Player Standings</CardTitle>
             <CardDescription>
-              Official standings for the 2026 season.
+              Official standings for the current tournament.
             </CardDescription>
           </div>
           <AlertDialog>
@@ -107,7 +107,7 @@ export default function TeamsPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete all match data and reset the standings.
+                  This action cannot be undone. This will permanently delete all game data and reset the standings.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -129,10 +129,10 @@ export default function TeamsPage() {
                           Rank
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Peringkat</TooltipContent>
+                      <TooltipContent>Rank</TooltipContent>
                     </Tooltip>
                   </TableHead>
-                  <TableHead>Team</TableHead>
+                  <TableHead>Player</TableHead>
                   <TableHead className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -140,7 +140,7 @@ export default function TeamsPage() {
                           P
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Pertandingan Dimainkan</TooltipContent>
+                      <TooltipContent>Games Played</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="hidden text-center sm:table-cell">
@@ -150,7 +150,7 @@ export default function TeamsPage() {
                           W
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Menang</TooltipContent>
+                      <TooltipContent>Wins</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="hidden text-center sm:table-cell">
@@ -160,7 +160,7 @@ export default function TeamsPage() {
                           L
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Kalah</TooltipContent>
+                      <TooltipContent>Losses</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-right">
@@ -170,7 +170,7 @@ export default function TeamsPage() {
                           Points
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Total Poin</TooltipContent>
+                      <TooltipContent>Total Points</TooltipContent>
                     </Tooltip>
                   </TableHead>
                 </TableRow>
@@ -205,7 +205,7 @@ export default function TeamsPage() {
           )}
           {!isLoading && standings.length === 0 && (
               <div className="text-center p-8 text-muted-foreground">
-                No matches played yet. Standings will appear here once results are in.
+                No games played yet. Standings will appear here once results are in.
               </div>
             )}
         </CardContent>

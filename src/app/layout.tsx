@@ -6,7 +6,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 export const metadata: Metadata = {
-  title: 'LigaManager',
+  title: 'Pool Game',
   description: 'Simple tournament management app',
 };
 

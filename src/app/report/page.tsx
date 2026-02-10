@@ -145,10 +145,10 @@ export default function ReportPage() {
                           Rank
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Peringkat</TooltipContent>
+                      <TooltipContent>Rank</TooltipContent>
                     </Tooltip>
                   </TableHead>
-                  <TableHead>Team</TableHead>
+                  <TableHead>Player</TableHead>
                   <TableHead className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -156,7 +156,7 @@ export default function ReportPage() {
                           P
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Pertandingan Dimainkan</TooltipContent>
+                      <TooltipContent>Games Played</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-center hidden sm:table-cell">
@@ -166,7 +166,7 @@ export default function ReportPage() {
                           W
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Menang</TooltipContent>
+                      <TooltipContent>Wins</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-center hidden sm:table-cell">
@@ -176,7 +176,7 @@ export default function ReportPage() {
                           L
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Kalah</TooltipContent>
+                      <TooltipContent>Losses</TooltipContent>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-right">
@@ -186,7 +186,7 @@ export default function ReportPage() {
                           Points
                         </span>
                       </TooltipTrigger>
-                      <TooltipContent>Total Poin</TooltipContent>
+                      <TooltipContent>Total Points</TooltipContent>
                     </Tooltip>
                   </TableHead>
                 </TableRow>
@@ -221,7 +221,7 @@ export default function ReportPage() {
           )}
           {!isLoading && standings.length === 0 && (
               <div className="text-center p-8 text-muted-foreground">
-                No matches played yet. Standings will appear here once results are in.
+                No games played yet. Standings will appear here once results are in.
               </div>
             )}
         </CardContent>

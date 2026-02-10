@@ -79,7 +79,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Team</CardTitle>
+            <CardTitle className="text-sm font-medium">Top Player</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                 <div className="text-2xl font-bold break-words">{topTeams[0].team.name}</div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No matches played yet.</p>
+              <p className="text-sm text-muted-foreground">No games played yet.</p>
             )}
             <p className="text-xs text-muted-foreground">
               {topTeams.length > 0 ? `${topTeams[0].points} points` : ''}
@@ -106,20 +106,20 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Teams</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Players</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{teams?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Participating in this league
+              Participating in this tournament
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Matches Played
+              Games Played
             </CardTitle>
             <Swords className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">League Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Tournament Status</CardTitle>
             <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -149,9 +149,9 @@ export default function DashboardPage() {
         <Card className="xl:col-span-2">
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
-              <CardTitle>League Standings</CardTitle>
+              <CardTitle>Player Standings</CardTitle>
               <CardDescription>
-                Top 3 teams based on points.
+                Top 3 players based on points.
               </CardDescription>
             </div>
             <Button asChild size="sm" className="ml-auto gap-1">
@@ -165,7 +165,7 @@ export default function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Team</TableHead>
+                  <TableHead>Player</TableHead>
                   <TableHead className="text-center">P</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">W</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">L</TableHead>
@@ -201,14 +201,14 @@ export default function DashboardPage() {
             </Table>
              {topTeams.length === 0 && (
               <div className="text-center p-4 text-muted-foreground">
-                No matches played yet. Standings will appear here.
+                No games played yet. Standings will appear here.
               </div>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Next Match</CardTitle>
+            <CardTitle>Next Game</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-8">
             {nextMatch ? (
@@ -249,12 +249,12 @@ export default function DashboardPage() {
             ) : (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-4">
                 <Trophy className="h-10 w-10 mb-2" />
-                <p>All matches have been played!</p>
+                <p>All games have been played!</p>
                 <p className="text-xs">Congratulations to the champion.</p>
               </div>
             )}
              <Button asChild className="w-full">
-                <Link href="/matches">View All Matches</Link>
+                <Link href="/matches">View All Games</Link>
             </Button>
           </CardContent>
         </Card>

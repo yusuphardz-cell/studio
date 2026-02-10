@@ -21,9 +21,9 @@ import {
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/teams', label: 'Standings', icon: Trophy },
-  { href: '/matches', label: 'Matches', icon: Swords },
-  { href: '/import', label: 'Import', icon: Upload },
+  { href: '/teams', label: 'Players', icon: Users },
+  { href: '/matches', label: 'Games', icon: Swords },
+  { href: '/import', label: 'Import Players', icon: Upload },
   { href: '/report', label: 'Report', icon: FileText },
 ];
 

@@ -63,7 +63,7 @@ export function MatchScoreDialog({
         <DialogHeader>
           <DialogTitle>Record Score</DialogTitle>
           <DialogDescription>
-            Enter the final score for the match.
+            Enter the final score for the game.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

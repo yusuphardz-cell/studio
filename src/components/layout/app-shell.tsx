@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-2 text-sidebar-foreground transition-colors hover:text-sidebar-primary-foreground"
           >
             <Trophy className="h-6 w-6" />
-            <span className="text-lg font-semibold">LigaManager</span>
+            <span className="text-lg font-semibold">Pool Game</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>
