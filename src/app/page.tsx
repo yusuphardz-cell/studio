@@ -71,7 +71,7 @@ export default function DashboardPage() {
   const isLoading = teamsLoading || matchesLoading;
 
   if (isLoading) {
-    return <div className="p-8">Loading dashboard...</div>
+    return <div className="p-8">Memuat dasbor...</div>
   }
 
   return (
@@ -79,7 +79,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Player</CardTitle>
+            <CardTitle className="text-sm font-medium">Pemain Teratas</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -97,29 +97,29 @@ export default function DashboardPage() {
                 <div className="text-2xl font-bold break-words">{topTeams[0].team.name}</div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No games played yet.</p>
+              <p className="text-sm text-muted-foreground">Belum ada pertandingan yang dimainkan.</p>
             )}
             <p className="text-xs text-muted-foreground">
-              {topTeams.length > 0 ? `${topTeams[0].points} points` : ''}
+              {topTeams.length > 0 ? `${topTeams[0].points} poin` : ''}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Players</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Pemain</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{teams?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Participating in this tournament
+              Berpartisipasi dalam turnamen ini
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Games Played
+              Pertandingan Dimainkan
             </CardTitle>
             <Swords className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -128,19 +128,19 @@ export default function DashboardPage() {
               {matches?.filter((m) => m.status === 'played').length || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              out of {matches?.length || 0} total
+              dari total {matches?.length || 0}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tournament Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Status Turnamen</CardTitle>
             <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Ongoing</div>
+            <div className="text-2xl font-bold">Sedang Berlangsung</div>
             <p className="text-xs text-muted-foreground">
-              2026 Season
+              Musim 2026
             </p>
           </CardContent>
         </Card>
@@ -149,14 +149,14 @@ export default function DashboardPage() {
         <Card className="xl:col-span-2">
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
-              <CardTitle>Player Standings</CardTitle>
+              <CardTitle>Peringkat Pemain</CardTitle>
               <CardDescription>
-                Top 3 players based on points.
+                3 pemain teratas berdasarkan poin.
               </CardDescription>
             </div>
             <Button asChild size="sm" className="ml-auto gap-1">
               <Link href="/teams">
-                View All
+                Lihat Semua
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -165,11 +165,11 @@ export default function DashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Player</TableHead>
+                  <TableHead>Pemain</TableHead>
                   <TableHead className="text-center">P</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">W</TableHead>
                   <TableHead className="text-center hidden sm:table-cell">L</TableHead>
-                  <TableHead className="text-right">Points</TableHead>
+                  <TableHead className="text-right">Poin</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -201,14 +201,14 @@ export default function DashboardPage() {
             </Table>
              {topTeams.length === 0 && (
               <div className="text-center p-4 text-muted-foreground">
-                No games played yet. Standings will appear here.
+                Belum ada pertandingan yang dimainkan. Peringkat akan muncul di sini.
               </div>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Next Game</CardTitle>
+            <CardTitle>Pertandingan Berikutnya</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-8">
             {nextMatch ? (
@@ -249,12 +249,12 @@ export default function DashboardPage() {
             ) : (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-4">
                 <Trophy className="h-10 w-10 mb-2" />
-                <p>All games have been played!</p>
-                <p className="text-xs">Congratulations to the champion.</p>
+                <p>Semua pertandingan telah dimainkan!</p>
+                <p className="text-xs">Selamat untuk sang juara.</p>
               </div>
             )}
              <Button asChild className="w-full">
-                <Link href="/matches">View All Games</Link>
+                <Link href="/matches">Lihat Semua Pertandingan</Link>
             </Button>
           </CardContent>
         </Card>
