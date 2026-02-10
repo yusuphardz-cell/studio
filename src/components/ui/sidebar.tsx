@@ -586,6 +586,13 @@ const SidebarMenuButton = React.forwardRef<
       }
     }
 
+    // On the server, isMobile is undefined. To prevent a hydration mismatch,
+    // we render the button without a tooltip during server-side rendering and
+    // the initial client-side render.
+    if (isMobile === undefined) {
+      return button
+    }
+
     // Tooltips should only be shown when the sidebar is collapsed and not on a mobile device.
     if (state !== "collapsed" || isMobile) {
       return button
