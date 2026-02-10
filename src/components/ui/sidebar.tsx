@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -64,8 +65,7 @@ const SidebarProvider = React.forwardRef<
       className,
       style,
       children,
-      // This is the important part: filter out the Next.js specific props
-      // before they are passed down to the underlying div.
+      // Filter out Next.js specific props
       params,
       searchParams,
       ...props
