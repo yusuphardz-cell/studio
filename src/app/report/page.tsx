@@ -119,9 +119,9 @@ export default function ReportPage() {
       <Card ref={reportCardRef}>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>History Standings Report</CardTitle>
+            <CardTitle>Klasemen</CardTitle>
             <CardDescription>
-              A downloadable report of the official standings, showing top player ranks.
+              Laporan klasemen yang dapat diunduh, menampilkan peringkat pemain teratas.
             </CardDescription>
           </div>
           <Button
