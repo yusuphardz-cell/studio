@@ -3,7 +3,7 @@
  *
  * Core Philosophy:
  * The security model is designed for public read access. Write operations
- * are currently open to allow for prototyping and development.
+ * are restricted to authenticated users to ensure data integrity.
  *
  * Data Structure:
  * The data is organized hierarchically. A top-level 'leagues' collection holds all
@@ -14,10 +14,9 @@
  * - Public Read Access: All collections ('leagues', 'participants', 'matches') are configured
  *   to be publicly readable by anyone. This supports the primary use case of displaying
  *   tournament information on a website.
- * - Writes Enabled for Prototyping: To facilitate development, write operations
- *   (`create`, `update`, `delete`) are currently allowed. In a production environment,
- *   these rules would need to be updated with an ownership model to restrict writes
- *   to authorized users (e.g., tournament admins).
+ * - Authenticated Writes: To protect data integrity, write operations (`create`, `update`, `delete`)
+ *   are only allowed for users who are authenticated with the application (including anonymous users).
+ *   This prevents unauthorized writes from outside the application context.
  * - No User-Specific Data: There are no user-specific collections (e.g., /users/{userId}),
  *   as the current model does not involve user accounts managing data.
  */
@@ -46,25 +45,27 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages Players in a tournament. Data is publicly readable and writable for prototyping.
+     * @description Manages Players in a tournament. Data is publicly readable. Writes are restricted to authenticated users.
      * @path /leagues/{leagueId}/participants/{participantId}
-     * @allow (read, write) Any user can read and write player data.
-     * @principle Public read/write access for prototyping. This should be secured in production.
+     * @allow (read) Any user can read player data.
+     * @allow (write) Any authenticated user (including anonymous) can write player data.
+     * @principle Public read access for display, with authenticated writes to prevent unauthorized modification.
      */
     match /leagues/{leagueId}/participants/{participantId} {
       allow read: if true;
-      allow write: if true; // WARNING: Open access for prototyping. Secure this for production.
+      allow write: if request.auth != null;
     }
 
     /**
-     * @description Manages Games in a tournament. Data is publicly readable and writable for prototyping.
+     * @description Manages Games in a tournament. Data is publicly readable. Writes are restricted to authenticated users.
      * @path /leagues/{leagueId}/matches/{matchId}
-     * @allow (read, write) Any user can read and write game data.
-     * @principle Public read/write access for prototyping. This should be secured in production.
+     * @allow (read) Any user can read game data.
+     * @allow (write) Any authenticated user (including anonymous) can write game data.
+     * @principle Public read access for display, with authenticated writes to prevent unauthorized modification.
      */
     match /leagues/{leagueId}/matches/{matchId} {
       allow read: if true;
-      allow write: if true; // WARNING: Open access for prototyping. Secure this for production.
+      allow write: if request.auth != null;
     }
   }
 }
