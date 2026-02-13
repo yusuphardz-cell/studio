@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  Trophy,
+  Swords,
+  Users,
+  LayoutDashboard,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -17,32 +26,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { calculateStandings, clearAllMatches, LEAGUE_ID } from '@/lib/data';
-import type { Standing, Team, Match, StoredMatch } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { RefreshCw } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { calculateStandings, LEAGUE_ID } from '@/lib/data';
+import type { Team, Match, Standing, StoredMatch } from '@/lib/types';
+import { format } from 'date-fns';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
-export default function TeamsPage() {
-  const { toast } = useToast();
+export default function DashboardPage() {
   const firestore = useFirestore();
 
   const participantsRef = useMemoFirebase(
@@ -75,141 +65,200 @@ export default function TeamsPage() {
     return calculateStandings(teams, matches);
   }, [teams, matches]);
 
+  const topTeams = standings.slice(0, 3);
+  const nextMatch = matches?.find((m) => m.status === 'upcoming');
+
   const isLoading = teamsLoading || matchesLoading;
 
-
-  const handleReset = async () => {
-    await clearAllMatches(firestore);
-    toast({
-        title: "Standings Reset",
-        description: "All games have been cleared and points are reset."
-    });
-  };
+  if (isLoading) {
+    return <div className="p-8">Memuat dasbor...</div>
+  }
 
   return (
-    <div className="flex-1 p-4 md:p-8">
-      <Card>
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Player Standings</CardTitle>
-            <CardDescription>
-              Official standings for the current tournament.
-            </CardDescription>
-          </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Reset All Points
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete all game data and reset the standings.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset}>Continue</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? <p>Loading standings...</p> : (
+    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pemain Teratas</CardTitle>
+            <Trophy className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {topTeams.length > 0 ? (
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={topTeams[0].team.logoUrl}
+                    alt={topTeams[0].team.name}
+                  />
+                  <AvatarFallback>
+                    {topTeams[0].team.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-2xl font-bold break-words">{topTeams[0].team.name}</div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Belum ada pertandingan yang dimainkan.</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {topTeams.length > 0 ? `${topTeams[0].points} poin` : ''}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Pemain</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{teams?.length || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Berpartisipasi dalam turnamen ini
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Pertandingan Dimainkan
+            </CardTitle>
+            <Swords className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {matches?.filter((m) => m.status === 'played').length || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              dari total {matches?.length || 0}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Status Turnamen</CardTitle>
+            <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Sedang Berlangsung</div>
+            <p className="text-xs text-muted-foreground">
+              Musim 2026
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+          <CardHeader className="flex flex-row items-center">
+            <div className="grid gap-2">
+              <CardTitle>Peringkat Pemain</CardTitle>
+              <CardDescription>
+                3 pemain teratas berdasarkan poin.
+              </CardDescription>
+            </div>
+            <Button asChild size="sm" className="ml-auto gap-1">
+              <Link href="/teams">
+                Lihat Semua
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[50px] text-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help border-b border-dashed">
-                          Rank
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Rank</TooltipContent>
-                    </Tooltip>
-                  </TableHead>
-                  <TableHead>Player</TableHead>
-                  <TableHead className="text-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help border-b border-dashed">
-                          P
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Games Played</TooltipContent>
-                    </Tooltip>
-                  </TableHead>
-                  <TableHead className="hidden text-center sm:table-cell">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help border-b border-dashed">
-                          W
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Wins</TooltipContent>
-                    </Tooltip>
-                  </TableHead>
-                  <TableHead className="hidden text-center sm:table-cell">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help border-b border-dashed">
-                          L
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Losses</TooltipContent>
-                    </Tooltip>
-                  </TableHead>
-                  <TableHead className="text-right">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help border-b border-dashed">
-                          Points
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Total Points</TooltipContent>
-                    </Tooltip>
-                  </TableHead>
+                  <TableHead>Pemain</TableHead>
+                  <TableHead className="text-center">P</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">W</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">L</TableHead>
+                  <TableHead className="text-right">Poin</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {standings.map((s) => (
-                  <TableRow key={s.team.id}>
-                    <TableCell className="font-medium text-center">{s.rank}</TableCell>
+                {topTeams.map((standing) => (
+                  <TableRow key={standing.team.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
                           <AvatarImage
-                            src={s.team.logoUrl}
-                            alt={s.team.name}
-                            data-ai-hint={s.team.dataAiHint}
+                            src={standing.team.logoUrl}
+                            alt={standing.team.name}
                           />
-                          <AvatarFallback>{s.team.name.slice(0, 2)}</AvatarFallback>
+                          <AvatarFallback>
+                            {standing.team.name.charAt(0)}
+                          </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium break-words">{s.team.name}</span>
+                        <div className="font-medium break-words">{standing.team.name}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">{s.played}</TableCell>
-                    <TableCell className="hidden text-center sm:table-cell">{s.win}</TableCell>
-                    <TableCell className="hidden text-center sm:table-cell">{s.loss}</TableCell>
-                    <TableCell className="text-right font-bold">
-                      {s.points}
+                    <TableCell className="text-center">{standing.played}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{standing.win}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{standing.loss}</TableCell>
+                    <TableCell className="text-right">
+                      {standing.points}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          )}
-          {!isLoading && standings.length === 0 && (
-              <div className="text-center p-8 text-muted-foreground">
-                No games played yet. Standings will appear here once results are in.
+             {topTeams.length === 0 && (
+              <div className="text-center p-4 text-muted-foreground">
+                Belum ada pertandingan yang dimainkan. Peringkat akan muncul di sini.
               </div>
             )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Pertandingan Berikutnya</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-8">
+            {nextMatch ? (
+              <div className="flex items-center justify-around gap-2">
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={nextMatch.team1.logoUrl}
+                      alt={nextMatch.team1.name}
+                    />
+                    <AvatarFallback>
+                      {nextMatch.team1.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold w-full text-center break-words">{nextMatch.team1.name}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl font-bold text-muted-foreground">
+                    VS
+                  </span>
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    {format(new Date(nextMatch.date), 'PP')}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={nextMatch.team2.logoUrl}
+                      alt={nextMatch.team2.name}
+                    />
+                    <AvatarFallback>
+                      {nextMatch.team2.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold w-full text-center break-words">{nextMatch.team2.name}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-4">
+                <Trophy className="h-10 w-10 mb-2" />
+                <p>Semua pertandingan telah dimainkan!</p>
+                <p className="text-xs">Selamat untuk sang juara.</p>
+              </div>
+            )}
+             <Button asChild className="w-full">
+                <Link href="/matches">Lihat Semua Pertandingan</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
