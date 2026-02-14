@@ -1,4 +1,4 @@
-'use client';
+['use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -260,5 +260,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  );
+  );](https://9000-firebase-studio-1770358595529.cluster-c36dgv2kibakqwbbbsgmia3fny.cloudworkstations.dev/matches)
 }
